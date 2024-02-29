@@ -49,5 +49,5 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 
 
-    implementation 'com.yandex.android:maps.mobile:4.5.1-navikit'
+    implementation 'com.yandex.android:maps.mobile:4.5.1-lite'
 }
