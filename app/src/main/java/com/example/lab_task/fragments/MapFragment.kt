@@ -14,8 +14,13 @@ import com.google.android.material.snackbar.Snackbar
 import com.yandex.mapkit.MapKitFactory
 import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.map.CameraPosition
+import com.yandex.mapkit.map.ClusterListener
 import com.yandex.mapkit.map.MapObjectTapListener
+import com.yandex.mapkitdemo.objects.ClusterView
+import com.yandex.mapkitdemo.objects.PlacemarkType
+import com.yandex.mapkitdemo.objects.PlacemarkUserData
 import com.yandex.runtime.image.ImageProvider
+import com.yandex.runtime.ui_view.ViewProvider
 
 class MapFragment : Fragment() {
 
@@ -26,14 +31,7 @@ class MapFragment : Fragment() {
     private lateinit var viewModel: MapViewModel
     private lateinit var binding: FragmentMapBinding
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
-
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentMapBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -41,20 +39,8 @@ class MapFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         viewModel = ViewModelProvider(this)[MapViewModel::class.java]
-
         binding.mapview.onStart()
-
         viewModel.getTags()
-        viewModel.tags.observe(viewLifecycleOwner){
-            val imageProvider = ImageProvider.fromResource(requireContext(), R.drawable.placemark_icon)
-            for(i in it.indices) {
-                val placemark = binding.mapview.map.mapObjects.addPlacemark().apply {
-                    geometry = Point(it[i].latitude, it[i].longitude)
-                    setIcon(imageProvider)
-                }
-                placemark.addTapListener(placemarkTapListener)
-            }
-        }
 
         binding.mapview.map.move(
             CameraPosition(
@@ -63,6 +49,39 @@ class MapFragment : Fragment() {
                 /* azimuth = */ 0.0f,
                 /* tilt = */ 0.0f
             )
+        )
+
+        val clusterizedCollection =
+            binding.mapview.map.mapObjects.addClusterizedPlacemarkCollection(clusterListener)
+
+        viewModel.tags.observe(viewLifecycleOwner){
+            val imageProvider = ImageProvider.fromResource(requireContext(), R.drawable.placemark)
+            for(i in it.indices) {
+//                val placemark = binding.mapview.map.mapObjects.addPlacemark().apply {
+//                    geometry = Point(it[i].latitude, it[i].longitude)
+//                    setIcon(imageProvider)
+//                }
+                clusterizedCollection.addPlacemark().apply {
+                    geometry = Point(it[i].latitude, it[i].longitude)
+                    setIcon(imageProvider)
+                }
+//                placemark.addTapListener(placemarkTapListener)
+            }
+            clusterizedCollection.clusterPlacemarks(60.0, 15)
+        }
+
+        viewModel.addTag(55.817882, 37.311260, "WWPP_test", "")
+    }
+
+    val clusterListener = ClusterListener { cluster ->
+        val placemarkTypes = cluster.placemarks.map {
+            PlacemarkType.RED
+        }
+        cluster.appearance.setView(
+            ViewProvider(
+                ClusterView(requireContext()).apply {
+                    setData(placemarkTypes)
+                })
         )
     }
 

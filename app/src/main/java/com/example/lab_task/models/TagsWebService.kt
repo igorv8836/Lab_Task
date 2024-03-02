@@ -16,6 +16,10 @@ class TagsWebService {
         return api.getTags()
     }
 
+    suspend fun addTag(data: PostTag): Tag {
+        return api.addTag(data)
+    }
+
     private fun createTagsApi(): TagsApi {
         val moshi = Moshi.Builder()
             .add(KotlinJsonAdapterFactory())
