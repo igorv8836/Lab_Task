@@ -17,7 +17,7 @@ class TagsWebService {
     }
 
     suspend fun addTag(data: PostTag): Tag {
-        return api.addTag(data)
+        return api.addTag(data.latitude, data.longitude, data.description)
     }
 
     private fun createTagsApi(): TagsApi {

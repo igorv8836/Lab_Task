@@ -3,11 +3,42 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".fragments.MapFragment">
 
     <com.yandex.mapkit.mapview.MapView
         android:id="@+id/mapview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
+
+    <FrameLayout
+        android:id="@+id/tag_info_frame"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:visibility="gone"
+        android:layout_marginBottom="@dimen/margin_large"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <include
+            android:id="@+id/incude"
+            layout="@layout/tag_managing"/>
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/new_tag_button_frame"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:visibility="gone"
+        android:layout_marginBottom="@dimen/margin_medium"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <include
+            android:id="@+id/incude_add_tag"
+            layout="@layout/add_new_tag_button"/>
+    </FrameLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

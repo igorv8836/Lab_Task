@@ -14,12 +14,14 @@ import kotlinx.coroutines.withContext
 class MapViewModel : ViewModel() {
     private val tagsWebService = TagsWebService()
     val tags: MutableLiveData<List<Tag>> = MutableLiveData()
+    val addedTag: MutableLiveData<Tag> = MutableLiveData()
 
     fun getTags(){
         viewModelScope.launch {
             try {
                 val tagsResponse = withContext(Dispatchers.IO) {
                     tags.postValue(tagsWebService.getTags())
+                    addAddedTagToMainList()
                     Log.i("api", tags.value?.size.toString())
                 }
 
@@ -33,15 +35,19 @@ class MapViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 val response = withContext(Dispatchers.IO) {
-                    //val lastTags = ArrayList(tags.value)
-                    val a = tagsWebService.addTag(PostTag(latitude, longitude, description, image))
-                    Log.i("info", "Success")
-                    //lastTags.add(a)
-                    //tags.value = lastTags
+                    addedTag.postValue(tagsWebService.addTag(PostTag(latitude, longitude, description, image)))
+                    Log.i("api_post", "Success")
                 }
             } catch (e: Exception){
                 Log.i("api_post", e.message.toString())
             }
         }
+    }
+
+    fun addAddedTagToMainList(){
+        val tagValue = addedTag.value
+        val tags = ArrayList(tags.value)
+        tags.add(tagValue)
+        this.tags.value = tags
     }
 }
