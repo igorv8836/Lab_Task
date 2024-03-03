@@ -39,19 +39,18 @@ interface TagsApi {
     suspend fun deleteLike()
 
 
+    @POST("/api/auth/register")
+    suspend fun registerAccount(
+        @Body request: RegisterUser
+    ): Response<User>
+
+
     @FormUrlEncoded
     @POST("/api/auth/jwt/login")
     suspend fun authUser(
         @Field("username") username: String,
         @Field("password") password: String
     ): Response<UserAuth>
-
-    @FormUrlEncoded
-    @POST("/api/auth/jwt/login")
-    suspend fun test(
-        @Header("Authorization") token: String
-    ): Response<UserAuth>
-
 
     @Multipart
     @POST("/api/tags/")

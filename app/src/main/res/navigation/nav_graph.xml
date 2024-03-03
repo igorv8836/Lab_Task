@@ -9,5 +9,21 @@
         android:id="@+id/mapFragment"
         android:name="com.example.lab_task.fragments.MapFragment"
         android:label="fragment_map"
-        tools:layout="@layout/fragment_map" />
+        tools:layout="@layout/fragment_map" >
+    </fragment>
+
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.example.lab_task.fragments.SettingsFragment"
+        android:label="fragment_settings"
+        tools:layout="@layout/fragment_settings" >
+    </fragment>
+
+    <action
+        android:id="@+id/action_to_settings_fragment"
+        app:destination="@id/settingsFragment" />
+
+    <action
+        android:id="@+id/action_to_map_fragment"
+        app:destination="@id/mapFragment" />
 </navigation>

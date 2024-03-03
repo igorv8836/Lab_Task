@@ -12,10 +12,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class MapViewModel : ViewModel() {
-    private val tagsWebService = TagsWebService()
+    private val tagsWebService = TagsWebService
     val tags: MutableLiveData<List<Tag>> = MutableLiveData()
     val addedTag: MutableLiveData<Tag> = MutableLiveData()
-    var token: String? = null
+    private var token: String? = null
 
     fun getTags(){
         viewModelScope.launch {

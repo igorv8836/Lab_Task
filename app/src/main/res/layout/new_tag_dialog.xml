@@ -13,10 +13,10 @@
         app:layout_constraintStart_toStartOf="parent"
         app:endIconMode="clear_text"
         android:hint="Введите описание метки"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginStart="@dimen/margin_medium"
+        android:layout_marginEnd="@dimen/margin_medium"
+        android:layout_marginTop="@dimen/margin_medium"
+        android:layout_marginBottom="@dimen/margin_medium"
         app:boxBackgroundColor="@null"
         tools:ignore="MissingConstraints">
 

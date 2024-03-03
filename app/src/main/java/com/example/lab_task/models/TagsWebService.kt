@@ -8,7 +8,7 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 
-class TagsWebService {
+object TagsWebService {
     private var token: String? = null
     private val url = "https://maps.rtuitlab.dev"
     private val api: TagsApi by lazy {
@@ -40,6 +40,10 @@ class TagsWebService {
         return retrofit.create(TagsApi::class.java)
     }
 
+    suspend fun createAccount(username: String, password: String): Response<User>{
+        return api.registerAccount(RegisterUser(username, password))
+    }
+
     suspend fun auth(username: String, password: String): Response<UserAuth>{
         return api.authUser(username, password)
     }
@@ -48,7 +52,7 @@ class TagsWebService {
         return api.addAuthTag(data.latitude, data.longitude, data.description, "Bearer $auth")
     }
 
-    suspend fun test(token: String): Response<UserAuth>{
-        return api.test(token)
-    }
+//    suspend fun test(token: String): Response<UserAuth>{
+//        return api.test(token)
+//    }
 }
