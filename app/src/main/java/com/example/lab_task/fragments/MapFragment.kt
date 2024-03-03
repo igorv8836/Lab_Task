@@ -82,11 +82,18 @@ class MapFragment : Fragment() {
             }
             placemark.addTapListener(placemarkTapListener)
             clusterizedCollection.clusterPlacemarks(60.0, 15)
+
+            viewModel.addAddedTagToMainList()
         }
 
         binding.incude.closeButton.setOnClickListener {
             binding.tagInfoFrame.visibility = View.GONE
 //            userPlacemark?.setVisible(true)
+        }
+
+        binding.incudeAddTag.closeButton.setOnClickListener {
+            userPlacemark?.setVisible(false)
+            binding.newTagButtonFrame.visibility = View.GONE
         }
 
         binding.mapview.map.addInputListener(inputListener)
@@ -111,6 +118,9 @@ class MapFragment : Fragment() {
                 }
             builder.create().show()
         }
+
+        viewModel.auth("igorv88361", "123123")
+//        viewModel.delete()
 
     }
 

@@ -15,18 +15,16 @@ class MapViewModel : ViewModel() {
     private val tagsWebService = TagsWebService()
     val tags: MutableLiveData<List<Tag>> = MutableLiveData()
     val addedTag: MutableLiveData<Tag> = MutableLiveData()
+    var token: String? = null
 
     fun getTags(){
         viewModelScope.launch {
             try {
                 val tagsResponse = withContext(Dispatchers.IO) {
-                    tags.postValue(tagsWebService.getTags())
-                    addAddedTagToMainList()
-                    Log.i("api", tags.value?.size.toString())
+                    tags.postValue(tagsWebService.getTags().body())
                 }
-
             } catch (e: Exception) {
-                Log.i("api", tags.value?.size.toString())
+                Log.i("api", e.message.toString())
             }
         }
     }
@@ -34,9 +32,8 @@ class MapViewModel : ViewModel() {
     fun addTag(latitude: Double, longitude: Double, description: String, image: String?){
         viewModelScope.launch {
             try {
-                val response = withContext(Dispatchers.IO) {
-                    addedTag.postValue(tagsWebService.addTag(PostTag(latitude, longitude, description, image)))
-                    Log.i("api_post", "Success")
+                withContext(Dispatchers.IO) {
+                    addedTag.postValue(tagsWebService.addTag(PostTag(latitude, longitude, description, image)).body())
                 }
             } catch (e: Exception){
                 Log.i("api_post", e.message.toString())
@@ -45,9 +42,49 @@ class MapViewModel : ViewModel() {
     }
 
     fun addAddedTagToMainList(){
-        val tagValue = addedTag.value
         val tags = ArrayList(tags.value)
-        tags.add(tagValue)
+        tags.add(addedTag.value)
         this.tags.value = tags
+    }
+
+    fun auth(username: String, password: String){
+        viewModelScope.launch {
+            try {
+                val response = tagsWebService.auth(username, password)
+                token = response.body()?.access_token
+            } catch (e: Exception){
+                Log.i("auth_api", e.message.toString())
+            }
+        }
+    }
+
+    fun addAuthedTag(latitude: Double, longitude: Double, description: String, image: String?, token: String){
+        viewModelScope.launch {
+            try {
+                val response = tagsWebService.addAuthTag(
+                    PostTag(55.662882, 37.485610, "tteess", null),
+                    token
+                    )
+                addedTag.postValue(response.body())
+                Log.i("api_auth_tag", response.message())
+            } catch (e: Exception){
+                Log.i("api_auth_tag", e.message.toString())
+            }
+        }
+    }
+
+    fun deleteTag(tagId: String){
+        viewModelScope.launch {
+            try{
+                val response = tagsWebService.deleteTag(tagId, token ?: "")
+                Log.i("delete_api", response.message())
+            } catch (e: Exception){
+                Log.i("delete_api", e.message.toString())
+            }
+        }
+    }
+
+    fun updateToken(){
+
     }
 }
