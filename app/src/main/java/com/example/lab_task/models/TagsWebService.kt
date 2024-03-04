@@ -10,7 +10,7 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 
 object TagsWebService {
     var token: String = ""
-    private val url = "https://maps.rtuitlab.dev"
+    val url = "https://maps.rtuitlab.dev"
     private val api: TagsApi by lazy {
         createTagsApi()
     }
@@ -20,7 +20,7 @@ object TagsWebService {
     }
 
     suspend fun addTag(data: PostTag): Response<Tag> {
-        return api.addTag(data.latitude, data.longitude, data.description)
+        return api.addTag(data.latitude, data.longitude, data.description, getBearerToken())
     }
 
     suspend fun deleteTag(id: String, token: String): Response<String> {
@@ -48,10 +48,6 @@ object TagsWebService {
         return api.authUser(username, password)
     }
 
-    suspend fun addAuthTag(data: PostTag, auth: String): Response<Tag> {
-        return api.addAuthTag(data.latitude, data.longitude, data.description, "Bearer $auth")
-    }
-
     suspend fun addLike(tagId: String): Response<Tag>{
         return api.likeTag(tagId, getBearerToken())
     }
@@ -60,9 +56,9 @@ object TagsWebService {
         return api.deleteLike(tagId, getBearerToken())
     }
 
-    fun getBearerToken(): String = "Bearer $token"
+    suspend fun getPhoto(path: String): Response<String>{
+        return api.getPhoto(path)
+    }
 
-//    suspend fun test(token: String): Response<UserAuth>{
-//        return api.test(token)
-//    }
+    fun getBearerToken(): String = "Bearer $token"
 }

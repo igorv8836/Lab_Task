@@ -24,7 +24,8 @@ interface TagsApi {
     suspend fun addTag(
         @Part("latitude") latitude: Double,
         @Part("longitude") longitude: Double,
-        @Part("description") description: String
+        @Part("description") description: String,
+        @Header("Authorization") token: String
     ): Response<Tag>
 
 
@@ -60,13 +61,8 @@ interface TagsApi {
         @Field("password") password: String
     ): Response<UserAuth>
 
-    @Multipart
-    @POST("/api/tags/")
-    suspend fun addAuthTag(
-        @Part("latitude") latitude: Double,
-        @Part("longitude") longitude: Double,
-        @Part("description") description: String,
-        @Header("Authorization") token: String
-    ): Response<Tag>
-
+    @GET("/storage/{path}")
+    suspend fun getPhoto(
+        @Path("path") path: String
+    ): Response<String>
 }

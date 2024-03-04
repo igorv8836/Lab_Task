@@ -1,21 +1,31 @@
 package com.example.lab_task.fragments
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
-import android.graphics.BitmapFactory
+import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.ImageDecoder
+import android.net.Uri
+import android.os.Build
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
+import android.provider.MediaStore
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
+import android.widget.ImageView
+import androidx.core.content.ContextCompat
 import com.example.lab_task.R
 import com.example.lab_task.databinding.FragmentMapBinding
 import com.example.lab_task.viewmodels.MapViewModel
 import com.google.android.material.snackbar.Snackbar
+import com.squareup.picasso.Picasso
 import com.yandex.mapkit.MapKitFactory
 import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.map.CameraPosition
@@ -29,17 +39,26 @@ import com.yandex.mapkitdemo.objects.PlacemarkType
 import com.yandex.runtime.image.ImageProvider
 import com.yandex.runtime.ui_view.ViewProvider
 import java.io.File
+import java.io.FileOutputStream
+import kotlin.math.min
 
 class MapFragment : Fragment() {
 
     companion object { fun newInstance() = MapFragment() }
 
+    private val READ_MEDIA_IMAGES_PERMISSION = 1
+    private val GALLERY_START_CODE = 2
     private lateinit var viewModel: MapViewModel
     private lateinit var binding: FragmentMapBinding
     private var userPlacemark: PlacemarkMapObject? = null
     private lateinit var sharedPref: SharedPreferences
+    private var photo: File? = null
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         binding = FragmentMapBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -49,6 +68,9 @@ class MapFragment : Fragment() {
         viewModel = ViewModelProvider(this)[MapViewModel::class.java]
         binding.mapview.onStart()
         viewModel.getTags()
+
+
+        binding.incudeAddTag.closeButton.bringToFront()
 
         sharedPref = requireActivity().getSharedPreferences("tokens", Context.MODE_PRIVATE)
         val token = sharedPref.getString(getString(R.string.tag_api_token), null)
@@ -107,8 +129,21 @@ class MapFragment : Fragment() {
         binding.mapview.map.addInputListener(inputListener)
 
         binding.incudeAddTag.addTagButton.setOnClickListener{
-            val customLayout = LayoutInflater.from(requireContext()).inflate(R.layout.new_tag_dialog, null)
+            val customLayout = LayoutInflater.from(
+                requireContext()).inflate(R.layout.new_tag_dialog, null)
             val editText = customLayout.findViewById<EditText>(R.id.editTextDescription_inputText)
+            val addImageButton  = customLayout.findViewById<ImageView>(R.id.add_photo_button)
+
+            addImageButton.setOnClickListener {
+                pickPhoto()
+
+                viewModel.photoForNewTag.observe(viewLifecycleOwner){
+                    val size = resources.getDimensionPixelSize(R.dimen.image_size)
+                    Picasso.get().load(it!!).resize(size, size).centerCrop()
+                        .into(addImageButton)
+                    }
+            }
+
             val builder = AlertDialog.Builder(requireContext())
                 .setView(customLayout)
                 .setTitle("Новая метка")
@@ -126,9 +161,6 @@ class MapFragment : Fragment() {
                 }
             builder.create().show()
         }
-
-        viewModel.auth("igorv88361", "123123")
-
     }
 
     val inputListener = object : InputListener {
@@ -177,24 +209,89 @@ class MapFragment : Fragment() {
             binding.incude.apply {
                 description.text = clickedTag.description
                 coordinates.text =
-                    (clickedTag.latitude.toString()) + ", " +
-                            (clickedTag.longitude.toString())
+                    clickedTag.latitude.toString().substring(
+                        0, min(clickedTag.latitude.toString().length, 10)) + ", " +
+                            clickedTag.longitude.toString().substring(
+                                0, min(clickedTag.longitude.toString().length, 10))
                 author.text = (("Автор: " + (clickedTag.user?.username ?: "-")))
                 likeCount.text = clickedTag.likes.toString()
                 if (clickedTag.isLiked)
                     like.setImageResource(R.drawable.red_heart)
                 else
                     like.setImageResource(R.drawable.heart)
-                if (clickedTag.image != null)
-                    image.setImageBitmap(BitmapFactory.decodeFile(File(clickedTag.image).absolutePath))
+                if (clickedTag.image != null) {
+                    Picasso.get().load(viewModel.getPhoto(clickedTag.image))
+                        .resize(
+                            resources.getDimensionPixelSize(R.dimen.image_size),
+                            resources.getDimensionPixelSize(R.dimen.image_size)
+                        ).centerCrop().into(image)
+                } else {
+                    image.setImageBitmap(null)
+                }
 
                 binding.tagInfoFrame.visibility = View.VISIBLE
 
-                binding.incude.like.setOnClickListener {
+                like.setOnClickListener {
                     viewModel.changeLike(clickedTag.id)
                 }
             }
         true
+    }
+
+    fun pickPhoto(){
+        if (ContextCompat.checkSelfPermission(
+                requireContext(),
+                android.Manifest.permission.READ_MEDIA_IMAGES
+        ) != PackageManager.PERMISSION_GRANTED) { // izin alınmadıysa
+            requestPermissions(arrayOf(
+                android.Manifest.permission.READ_MEDIA_IMAGES,
+                android.Manifest.permission.READ_EXTERNAL_STORAGE
+            ), READ_MEDIA_IMAGES_PERMISSION)
+        } else {
+            startActivityForResult(
+                Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI),
+                GALLERY_START_CODE
+            )
+        }
+    }
+
+
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+        if (requestCode == READ_MEDIA_IMAGES_PERMISSION) {
+            if (grantResults.size > 0  && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+                startActivityForResult(intent,GALLERY_START_CODE)
+            }
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == GALLERY_START_CODE && resultCode == Activity.RESULT_OK && data != null) {
+            var pickedPhoto : Uri? = data.data
+            var pickedBitMap : Bitmap? = null
+
+            if (pickedPhoto != null) {
+                if (Build.VERSION.SDK_INT >= 28) {
+                    val source = ImageDecoder.createSource(requireContext().contentResolver, pickedPhoto)
+                    pickedBitMap = ImageDecoder.decodeBitmap(source)
+                } else {
+                    pickedBitMap = MediaStore.Images.Media.getBitmap(requireContext().contentResolver,pickedPhoto)
+                }
+                photo = createTempFile()
+                FileOutputStream(photo).use {
+                    pickedBitMap!!.compress(Bitmap.CompressFormat.JPEG, 100, it)
+                }
+                viewModel.setImage(photo)
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data)
     }
 
     override fun onStart() {

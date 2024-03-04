@@ -1,5 +1,7 @@
 package com.example.lab_task.viewmodels
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -7,9 +9,13 @@ import androidx.lifecycle.viewModelScope
 import com.example.lab_task.models.PostTag
 import com.example.lab_task.models.Tag
 import com.example.lab_task.models.TagsWebService
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
+import kotlin.io.encoding.Base64
+import kotlin.io.encoding.ExperimentalEncodingApi
 
 class MapViewModel : ViewModel() {
     private val tagsWebService = TagsWebService
@@ -18,6 +24,7 @@ class MapViewModel : ViewModel() {
     val changedLikeOfTag: MutableLiveData<Tag> = MutableLiveData()
     var username: String? = null
     private var token: String? = null
+    val photoForNewTag: MutableLiveData<File?> = MutableLiveData()
 
 
     fun addToken(token: String){
@@ -158,18 +165,12 @@ class MapViewModel : ViewModel() {
         }
     }
 
-    fun addAuthedTag(latitude: Double, longitude: Double, description: String, image: String?, token: String){
-        viewModelScope.launch {
-            try {
-                val response = tagsWebService.addAuthTag(
-                    PostTag(55.662882, 37.485610, "tteess", null),
-                    token
-                    )
-                Log.i("api_auth_tag", response.message())
-            } catch (e: Exception){
-                Log.i("api_auth_tag", e.message.toString())
-            }
-        }
+    fun getPhoto(path: String): String {
+        return tagsWebService.url + path
+    }
+
+    fun setImage(file: File?){
+        photoForNewTag.value = file
     }
 
     fun deleteTag(tagId: String){
