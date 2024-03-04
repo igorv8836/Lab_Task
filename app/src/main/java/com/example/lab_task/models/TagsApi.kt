@@ -15,7 +15,9 @@ import retrofit2.http.Path
 
 interface TagsApi {
     @GET("/api/tags/")
-    suspend fun getTags(): Response<List<Tag>>
+    suspend fun getTags(
+        @Header("Authorization") token: String
+    ): Response<List<Tag>>
 
     @Multipart
     @POST("/api/tags/")
@@ -32,11 +34,17 @@ interface TagsApi {
         @Header("Authorization") token: String
     ): Response<String>
 
-    @POST("/api/tags/")
-    suspend fun likeTag()
+    @POST("/api/tags/{tag_id}/likes")
+    suspend fun likeTag(
+        @Path("tag_id") id: String,
+        @Header("Authorization") token: String
+    ): Response<Tag>
 
     @DELETE("/api/tags/{tag_id}/likes")
-    suspend fun deleteLike()
+    suspend fun deleteLike(
+        @Path("tag_id") id: String,
+        @Header("Authorization") token: String
+    ): Response<String>
 
 
     @POST("/api/auth/register")

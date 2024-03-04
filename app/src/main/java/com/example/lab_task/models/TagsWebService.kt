@@ -9,14 +9,14 @@ import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 
 object TagsWebService {
-    private var token: String? = null
+    var token: String = ""
     private val url = "https://maps.rtuitlab.dev"
     private val api: TagsApi by lazy {
         createTagsApi()
     }
 
     suspend fun getTags(): Response<List<Tag>> {
-        return api.getTags()
+        return api.getTags(getBearerToken())
     }
 
     suspend fun addTag(data: PostTag): Response<Tag> {
@@ -51,6 +51,16 @@ object TagsWebService {
     suspend fun addAuthTag(data: PostTag, auth: String): Response<Tag> {
         return api.addAuthTag(data.latitude, data.longitude, data.description, "Bearer $auth")
     }
+
+    suspend fun addLike(tagId: String): Response<Tag>{
+        return api.likeTag(tagId, getBearerToken())
+    }
+
+    suspend fun deleteLike(tagId: String): Response<String>{
+        return api.deleteLike(tagId, getBearerToken())
+    }
+
+    fun getBearerToken(): String = "Bearer $token"
 
 //    suspend fun test(token: String): Response<UserAuth>{
 //        return api.test(token)

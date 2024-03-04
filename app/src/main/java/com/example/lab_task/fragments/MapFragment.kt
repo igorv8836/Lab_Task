@@ -2,10 +2,11 @@ package com.example.lab_task.fragments
 
 import android.annotation.SuppressLint
 import android.app.AlertDialog
+import android.content.Context
+import android.content.SharedPreferences
 import android.graphics.BitmapFactory
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -25,7 +26,6 @@ import com.yandex.mapkit.map.MapObjectTapListener
 import com.yandex.mapkit.map.PlacemarkMapObject
 import com.yandex.mapkitdemo.objects.ClusterView
 import com.yandex.mapkitdemo.objects.PlacemarkType
-import com.yandex.mapkitdemo.objects.PlacemarkUserData
 import com.yandex.runtime.image.ImageProvider
 import com.yandex.runtime.ui_view.ViewProvider
 import java.io.File
@@ -37,8 +37,9 @@ class MapFragment : Fragment() {
     private lateinit var viewModel: MapViewModel
     private lateinit var binding: FragmentMapBinding
     private var userPlacemark: PlacemarkMapObject? = null
+    private lateinit var sharedPref: SharedPreferences
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentMapBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -48,6 +49,15 @@ class MapFragment : Fragment() {
         viewModel = ViewModelProvider(this)[MapViewModel::class.java]
         binding.mapview.onStart()
         viewModel.getTags()
+
+        sharedPref = requireActivity().getSharedPreferences("tokens", Context.MODE_PRIVATE)
+        val token = sharedPref.getString(getString(R.string.tag_api_token), null)
+        var username: String? = null
+        if (token != null) {
+            username = sharedPref.getString(getString(R.string.username), null)
+            viewModel.username = username
+            viewModel.addToken(token)
+        }
 
         binding.mapview.map.move(
             CameraPosition(
@@ -61,7 +71,9 @@ class MapFragment : Fragment() {
         val clusterizedCollection =
             binding.mapview.map.mapObjects.addClusterizedPlacemarkCollection(clusterListener)
 
+
         viewModel.tags.observe(viewLifecycleOwner){
+            clusterizedCollection.clear()
             val imageProvider = ImageProvider.fromResource(requireContext(), R.drawable.placemark)
             for(i in it.indices) {
                 val placemark = clusterizedCollection.addPlacemark().apply {
@@ -73,29 +85,25 @@ class MapFragment : Fragment() {
             }
             clusterizedCollection.clusterPlacemarks(60.0, 15)
         }
-        viewModel.addedTag.observe(viewLifecycleOwner){
-            val imageProvider = ImageProvider.fromResource(requireContext(), R.drawable.placemark)
-            val placemark = clusterizedCollection.addPlacemark().apply {
-                geometry = Point(it.latitude, it.longitude)
-                setText(it.description)
-                setIcon(imageProvider)
-            }
-            placemark.addTapListener(placemarkTapListener)
-            clusterizedCollection.clusterPlacemarks(60.0, 15)
 
-            viewModel.addAddedTagToMainList()
+        viewModel.helpingText.observe(viewLifecycleOwner) {
+            Snackbar.make(binding.root, it, Snackbar.LENGTH_SHORT).show()
+        }
+        viewModel.changedLikeOfTag.observe(viewLifecycleOwner){
+            binding.incude.likeCount.text = it.likes.toString()
+            if (it.isLiked)
+                binding.incude.like.setImageResource(R.drawable.red_heart)
+            else
+                binding.incude.like.setImageResource(R.drawable.heart)
         }
 
         binding.incude.closeButton.setOnClickListener {
             binding.tagInfoFrame.visibility = View.GONE
-//            userPlacemark?.setVisible(true)
         }
-
         binding.incudeAddTag.closeButton.setOnClickListener {
-            userPlacemark?.setVisible(false)
+            userPlacemark?.isVisible = false
             binding.newTagButtonFrame.visibility = View.GONE
         }
-
         binding.mapview.map.addInputListener(inputListener)
 
         binding.incudeAddTag.addTagButton.setOnClickListener{
@@ -120,7 +128,6 @@ class MapFragment : Fragment() {
         }
 
         viewModel.auth("igorv88361", "123123")
-//        viewModel.delete()
 
     }
 
@@ -134,7 +141,7 @@ class MapFragment : Fragment() {
                 }
             } else
                 userPlacemark?.geometry = point
-            userPlacemark?.setVisible(true)
+            userPlacemark?.isVisible = true
 
             binding.tagInfoFrame.visibility = View.GONE
             binding.newTagButtonFrame.visibility = View.VISIBLE
@@ -161,11 +168,11 @@ class MapFragment : Fragment() {
     private val placemarkTapListener = MapObjectTapListener { obj, point ->
         binding.newTagButtonFrame.visibility = View.GONE
         binding.tagInfoFrame.visibility = View.VISIBLE
-        userPlacemark?.setVisible(false)
-        val clickedTag = viewModel.tags.value?.firstOrNull {
-            it.latitude == (obj as PlacemarkMapObject).geometry.latitude
-                    && it.longitude == (obj as PlacemarkMapObject).geometry.longitude
-        }
+        userPlacemark?.isVisible = false
+        val clickedTag = viewModel.findTagByCoord(
+            (obj as PlacemarkMapObject).geometry.latitude,
+            obj.geometry.longitude
+        )
         if (clickedTag != null)
             binding.incude.apply {
                 description.text = clickedTag.description
@@ -176,10 +183,17 @@ class MapFragment : Fragment() {
                 likeCount.text = clickedTag.likes.toString()
                 if (clickedTag.isLiked)
                     like.setImageResource(R.drawable.red_heart)
+                else
+                    like.setImageResource(R.drawable.heart)
                 if (clickedTag.image != null)
                     image.setImageBitmap(BitmapFactory.decodeFile(File(clickedTag.image).absolutePath))
+
+                binding.tagInfoFrame.visibility = View.VISIBLE
+
+                binding.incude.like.setOnClickListener {
+                    viewModel.changeLike(clickedTag.id)
+                }
             }
-        binding.tagInfoFrame.visibility = View.VISIBLE
         true
     }
 

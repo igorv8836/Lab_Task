@@ -23,7 +23,7 @@ class SettingsFragment : Fragment() {
 
     private lateinit var binding: FragmentSettingsBinding
     private lateinit var viewModel: SettingsViewModel
-//    private val sharedPref: SharedPreferences = requireActivity().getSharedPreferences("tokens", Context.MODE_PRIVATE)
+    private lateinit var sharedPref: SharedPreferences
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -36,26 +36,78 @@ class SettingsFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         viewModel = ViewModelProvider(this)[SettingsViewModel::class.java]
+        sharedPref = requireActivity().getSharedPreferences("tokens", Context.MODE_PRIVATE)
+
+        val token = sharedPref.getString(getString(R.string.tag_api_token), null)
+        var username: String? = null
+        if (token != null){
+            username = sharedPref.getString(getString(R.string.username), null)
+            binding.mainText.text = username
+            showExitLayout()
+        }
 
 
-//        val token = sharedPref.getString(getString(R.string.tag_api_token), null)
-//
-//
-//        with (sharedPref.edit()) {
-//            putString(getString(R.string.tag_api_token), "new")
-//            apply()
-//        }
 
+        viewModel.snackbarText.observe(viewLifecycleOwner){
+            Snackbar.make(binding.root, it, Snackbar.LENGTH_SHORT).show()
+        }
 
         binding.registerButton.setOnClickListener {
-            val customLayout = LayoutInflater.from(requireContext())
-                .inflate(R.layout.register_account_dialog, null)
-            val loginEditText = customLayout.findViewById<EditText>(R.id.editTextUsername_inputText)
-            val passwordEditText =
-                customLayout.findViewById<EditText>(R.id.editTextPassword_inputText)
-            val builder = AlertDialog.Builder(requireContext())
-                .setView(customLayout)
-                .setTitle("Создать аккаунт")
+            showAuthDialog(true)
+        }
+        binding.loginButton.setOnClickListener {
+            showAuthDialog(false)
+        }
+        binding.exitButton.setOnClickListener {
+            viewModel.logOut()
+        }
+
+        viewModel.token.observe(viewLifecycleOwner){
+            if (it != null)
+                with (sharedPref.edit()) {
+                    putString(getString(R.string.tag_api_token), it)
+                    apply()
+                }
+            else {
+                with(sharedPref.edit()) {
+                    remove(getString(R.string.tag_api_token))
+                    remove(getString(R.string.username))
+                    apply()
+                }
+                showLogInLayout()
+            }
+        }
+
+        viewModel.username.observe(viewLifecycleOwner){
+            with (sharedPref.edit()) {
+                putString(getString(R.string.username), it)
+                apply()
+            }
+            binding.mainText.text = it
+            showExitLayout()
+        }
+    }
+
+    private fun showExitLayout(){
+        binding.authButtonsLayout.visibility = View.GONE
+        binding.exitAccLayout.visibility = View.VISIBLE
+    }
+
+    private fun showLogInLayout(){
+        binding.authButtonsLayout.visibility = View.VISIBLE
+        binding.exitAccLayout.visibility = View.GONE
+    }
+
+    private fun showAuthDialog(isRegister: Boolean){
+        val customLayout = LayoutInflater.from(requireContext())
+            .inflate(R.layout.auth_dialog, null)
+        val loginEditText = customLayout.findViewById<EditText>(R.id.editTextUsername_inputText)
+        val passwordEditText =
+            customLayout.findViewById<EditText>(R.id.editTextPassword_inputText)
+        val builder = AlertDialog.Builder(requireContext()).setView(customLayout)
+
+        if (isRegister){
+            builder.setTitle("Создать аккаунт")
                 .setPositiveButton("Создать") { dialog, which ->
                     if (loginEditText.text.isNotEmpty() && passwordEditText.text.length >= 3) {
                         viewModel.createAccount(
@@ -63,16 +115,22 @@ class SettingsFragment : Fragment() {
                             passwordEditText.text.toString()
                         )
                     }
-                }.setNegativeButton("Отменить") { dialog, which ->
-                    dialog.dismiss()
                 }
-            builder.create().show()
-
+        } else{
+            builder.setTitle("Войти")
+                .setPositiveButton("Войти") { dialog, which ->
+                    if (loginEditText.text.isNotEmpty() && passwordEditText.text.length >= 3)
+                        viewModel.authAccount(
+                            loginEditText.text.toString(),
+                            passwordEditText.text.toString()
+                        )
+                }
         }
 
-        viewModel.snackbarText.observe(viewLifecycleOwner){
-            Snackbar.make(binding.root, it, Snackbar.LENGTH_SHORT).show()
+        builder.setNegativeButton("Отменить") { dialog, which ->
+            dialog.dismiss()
         }
+        builder.create().show()
     }
 
 }

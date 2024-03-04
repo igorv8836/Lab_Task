@@ -9,8 +9,8 @@ data class Tag(
     val longitude: Double,
     val description: String,
     val image: String?,
-    val likes: Int,
-    @Json(name="is_liked") val isLiked: Boolean,
+    var likes: Int,
+    @Json(name="is_liked") var isLiked: Boolean,
     val user: User?
 )
 
