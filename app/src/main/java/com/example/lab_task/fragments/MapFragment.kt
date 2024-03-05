@@ -9,11 +9,14 @@ import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
+import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.os.Build
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Base64
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -38,6 +41,7 @@ import com.yandex.mapkitdemo.objects.ClusterView
 import com.yandex.mapkitdemo.objects.PlacemarkType
 import com.yandex.runtime.image.ImageProvider
 import com.yandex.runtime.ui_view.ViewProvider
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import kotlin.math.min
@@ -68,9 +72,6 @@ class MapFragment : Fragment() {
         viewModel = ViewModelProvider(this)[MapViewModel::class.java]
         binding.mapview.onStart()
         viewModel.getTags()
-
-
-        binding.incudeAddTag.closeButton.bringToFront()
 
         sharedPref = requireActivity().getSharedPreferences("tokens", Context.MODE_PRIVATE)
         val token = sharedPref.getString(getString(R.string.tag_api_token), null)
@@ -107,7 +108,6 @@ class MapFragment : Fragment() {
             }
             clusterizedCollection.clusterPlacemarks(60.0, 15)
         }
-
         viewModel.helpingText.observe(viewLifecycleOwner) {
             Snackbar.make(binding.root, it, Snackbar.LENGTH_SHORT).show()
         }
@@ -136,24 +136,29 @@ class MapFragment : Fragment() {
 
             addImageButton.setOnClickListener {
                 pickPhoto()
+            }
 
-                viewModel.photoForNewTag.observe(viewLifecycleOwner){
-                    val size = resources.getDimensionPixelSize(R.dimen.image_size)
-                    Picasso.get().load(it!!).resize(size, size).centerCrop()
-                        .into(addImageButton)
-                    }
+            viewModel.photoForNewTag.observe(viewLifecycleOwner){
+                val size = resources.getDimensionPixelSize(R.dimen.image_size)
+                Picasso.get().load(it!!).resize(size, size).centerCrop()
+                    .into(addImageButton)
             }
 
             val builder = AlertDialog.Builder(requireContext())
                 .setView(customLayout)
                 .setTitle("Новая метка")
                 .setPositiveButton("Добавить") { dialog, which ->
+                    val bitmap = (addImageButton.drawable as BitmapDrawable).bitmap
+                    val byteArrayOut = ByteArrayOutputStream()
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOut)
+                    val imageBytes = byteArrayOut.toByteArray()
+
                     if (userPlacemark != null) {
                         viewModel.addTag(
                             userPlacemark!!.geometry.latitude,
                             userPlacemark!!.geometry.longitude,
                             editText.text.toString(),
-                            null
+                            Base64.encodeToString(imageBytes, Base64.DEFAULT)
                         )
                     }
                 }.setNegativeButton("Отменить") {dialog, which ->
@@ -239,19 +244,39 @@ class MapFragment : Fragment() {
     }
 
     fun pickPhoto(){
-        if (ContextCompat.checkSelfPermission(
-                requireContext(),
-                android.Manifest.permission.READ_MEDIA_IMAGES
-        ) != PackageManager.PERMISSION_GRANTED) { // izin alınmadıysa
-            requestPermissions(arrayOf(
-                android.Manifest.permission.READ_MEDIA_IMAGES,
-                android.Manifest.permission.READ_EXTERNAL_STORAGE
-            ), READ_MEDIA_IMAGES_PERMISSION)
+        Log.i("sdk", Build.VERSION.SDK_INT.toString())
+        if (Build.VERSION.SDK_INT >= 33) {
+            if (ContextCompat.checkSelfPermission(
+                    requireContext(),
+                    android.Manifest.permission.READ_MEDIA_IMAGES
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                requestPermissions(
+                    arrayOf(android.Manifest.permission.READ_MEDIA_IMAGES),
+                    READ_MEDIA_IMAGES_PERMISSION
+                )
+            } else {
+                startActivityForResult(
+                    Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI),
+                    GALLERY_START_CODE
+                )
+            }
         } else {
-            startActivityForResult(
-                Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI),
-                GALLERY_START_CODE
-            )
+            if (ContextCompat.checkSelfPermission(
+                    requireContext(),
+                    android.Manifest.permission.READ_EXTERNAL_STORAGE
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                requestPermissions(
+                    arrayOf(android.Manifest.permission.READ_EXTERNAL_STORAGE),
+                    READ_MEDIA_IMAGES_PERMISSION
+                )
+            } else {
+                startActivityForResult(
+                    Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI),
+                    GALLERY_START_CODE
+                )
+            }
         }
     }
 
@@ -278,7 +303,7 @@ class MapFragment : Fragment() {
             var pickedBitMap : Bitmap? = null
 
             if (pickedPhoto != null) {
-                if (Build.VERSION.SDK_INT >= 28) {
+                if (Build.VERSION.SDK_INT >= 33) {
                     val source = ImageDecoder.createSource(requireContext().contentResolver, pickedPhoto)
                     pickedBitMap = ImageDecoder.decodeBitmap(source)
                 } else {

@@ -20,7 +20,7 @@ object TagsWebService {
     }
 
     suspend fun addTag(data: PostTag): Response<Tag> {
-        return api.addTag(data.latitude, data.longitude, data.description, getBearerToken())
+        return api.addTag(data.latitude, data.longitude, data.description, data.image, getBearerToken())
     }
 
     suspend fun deleteTag(id: String, token: String): Response<String> {

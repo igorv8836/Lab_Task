@@ -25,6 +25,7 @@ interface TagsApi {
         @Part("latitude") latitude: Double,
         @Part("longitude") longitude: Double,
         @Part("description") description: String,
+        @Part("image") image: String?,
         @Header("Authorization") token: String
     ): Response<Tag>
 
