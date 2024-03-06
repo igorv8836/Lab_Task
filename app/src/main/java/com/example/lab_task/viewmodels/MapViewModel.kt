@@ -1,8 +1,12 @@
 package com.example.lab_task.viewmodels
 
+import android.app.Application
+import android.content.Context
+import android.content.SharedPreferences
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Log
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -48,7 +52,7 @@ class MapViewModel : ViewModel() {
         }
     }
 
-    fun addTag(latitude: Double, longitude: Double, description: String, image: String?){
+    fun addTag(latitude: Double, longitude: Double, description: String, image: Bitmap?){
         viewModelScope.launch {
             try {
                 withContext(Dispatchers.IO) {

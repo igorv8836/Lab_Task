@@ -16,16 +16,14 @@ import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Base64
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
-import android.widget.ImageView
 import androidx.core.content.ContextCompat
 import com.example.lab_task.R
 import com.example.lab_task.databinding.FragmentMapBinding
+import com.example.lab_task.databinding.NewTagDialogBinding
 import com.example.lab_task.viewmodels.MapViewModel
 import com.google.android.material.snackbar.Snackbar
 import com.squareup.picasso.Picasso
@@ -48,8 +46,6 @@ import kotlin.math.min
 
 class MapFragment : Fragment() {
 
-    companion object { fun newInstance() = MapFragment() }
-
     private val READ_MEDIA_IMAGES_PERMISSION = 1
     private val GALLERY_START_CODE = 2
     private lateinit var viewModel: MapViewModel
@@ -58,11 +54,7 @@ class MapFragment : Fragment() {
     private lateinit var sharedPref: SharedPreferences
     private var photo: File? = null
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentMapBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -71,16 +63,9 @@ class MapFragment : Fragment() {
         super.onActivityCreated(savedInstanceState)
         viewModel = ViewModelProvider(this)[MapViewModel::class.java]
         binding.mapview.onStart()
+        getToken()
         viewModel.getTags()
 
-        sharedPref = requireActivity().getSharedPreferences("tokens", Context.MODE_PRIVATE)
-        val token = sharedPref.getString(getString(R.string.tag_api_token), null)
-        var username: String? = null
-        if (token != null) {
-            username = sharedPref.getString(getString(R.string.username), null)
-            viewModel.username = username
-            viewModel.addToken(token)
-        }
 
         binding.mapview.map.move(
             CameraPosition(
@@ -93,24 +78,26 @@ class MapFragment : Fragment() {
 
         val clusterizedCollection =
             binding.mapview.map.mapObjects.addClusterizedPlacemarkCollection(clusterListener)
+        binding.mapview.map.addInputListener(inputListener)
 
 
         viewModel.tags.observe(viewLifecycleOwner){
             clusterizedCollection.clear()
-            val imageProvider = ImageProvider.fromResource(requireContext(), R.drawable.placemark)
             for(i in it.indices) {
                 val placemark = clusterizedCollection.addPlacemark().apply {
                     geometry = Point(it[i].latitude, it[i].longitude)
                     setText(it[i].description)
-                    setIcon(imageProvider)
+                    setIcon(ImageProvider.fromResource(requireContext(), R.drawable.placemark))
+                    addTapListener(placemarkTapListener)
                 }
-                placemark.addTapListener(placemarkTapListener)
             }
             clusterizedCollection.clusterPlacemarks(60.0, 15)
         }
+
         viewModel.helpingText.observe(viewLifecycleOwner) {
             Snackbar.make(binding.root, it, Snackbar.LENGTH_SHORT).show()
         }
+
         viewModel.changedLikeOfTag.observe(viewLifecycleOwner){
             binding.incude.likeCount.text = it.likes.toString()
             if (it.isLiked)
@@ -119,46 +106,43 @@ class MapFragment : Fragment() {
                 binding.incude.like.setImageResource(R.drawable.heart)
         }
 
+
+
         binding.incude.closeButton.setOnClickListener {
             binding.tagInfoFrame.visibility = View.GONE
         }
+
         binding.incudeAddTag.closeButton.setOnClickListener {
             userPlacemark?.isVisible = false
             binding.newTagButtonFrame.visibility = View.GONE
         }
-        binding.mapview.map.addInputListener(inputListener)
 
         binding.incudeAddTag.addTagButton.setOnClickListener{
-            val customLayout = LayoutInflater.from(
-                requireContext()).inflate(R.layout.new_tag_dialog, null)
-            val editText = customLayout.findViewById<EditText>(R.id.editTextDescription_inputText)
-            val addImageButton  = customLayout.findViewById<ImageView>(R.id.add_photo_button)
+            val bindingDialog = NewTagDialogBinding.inflate(LayoutInflater.from(requireContext()))
 
-            addImageButton.setOnClickListener {
+            bindingDialog.addPhotoButton.setOnClickListener {
                 pickPhoto()
             }
 
+            //--------------------------------------------------------------------------------------Нарушение MVVM
             viewModel.photoForNewTag.observe(viewLifecycleOwner){
                 val size = resources.getDimensionPixelSize(R.dimen.image_size)
                 Picasso.get().load(it!!).resize(size, size).centerCrop()
-                    .into(addImageButton)
+                    .into(bindingDialog.addPhotoButton)
             }
 
             val builder = AlertDialog.Builder(requireContext())
-                .setView(customLayout)
+                .setView(bindingDialog.root)
                 .setTitle("Новая метка")
                 .setPositiveButton("Добавить") { dialog, which ->
-                    val bitmap = (addImageButton.drawable as BitmapDrawable).bitmap
-                    val byteArrayOut = ByteArrayOutputStream()
-                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOut)
-                    val imageBytes = byteArrayOut.toByteArray()
+                    val bitmap = (bindingDialog.addPhotoButton.drawable as BitmapDrawable).bitmap
 
                     if (userPlacemark != null) {
                         viewModel.addTag(
                             userPlacemark!!.geometry.latitude,
                             userPlacemark!!.geometry.longitude,
-                            editText.text.toString(),
-                            Base64.encodeToString(imageBytes, Base64.DEFAULT)
+                            bindingDialog.editTextDescriptionInputText.text.toString(),
+                            bitmap
                         )
                     }
                 }.setNegativeButton("Отменить") {dialog, which ->
@@ -170,23 +154,26 @@ class MapFragment : Fragment() {
 
     val inputListener = object : InputListener {
         override fun onMapTap(map: Map, point: Point) {
-            val image = ImageProvider.fromResource(requireContext(), R.drawable.white_placemark)
             if (userPlacemark == null) {
                 userPlacemark = map.mapObjects.addPlacemark().apply {
                     geometry = point
-                    setIcon(image)
+                    setIcon(
+                        ImageProvider.fromResource(
+                            requireContext(),
+                            R.drawable.white_placemark
+                        )
+                    )
                 }
-            } else
-                userPlacemark?.geometry = point
+            } else {
+                userPlacemark!!.geometry = point
+            }
             userPlacemark?.isVisible = true
 
             binding.tagInfoFrame.visibility = View.GONE
             binding.newTagButtonFrame.visibility = View.VISIBLE
-
         }
 
-        override fun onMapLongTap(map: Map, point: Point) {
-        }
+        override fun onMapLongTap(map: Map, point: Point) { }
     }
 
     val clusterListener = ClusterListener { cluster ->
@@ -206,10 +193,12 @@ class MapFragment : Fragment() {
         binding.newTagButtonFrame.visibility = View.GONE
         binding.tagInfoFrame.visibility = View.VISIBLE
         userPlacemark?.isVisible = false
+
         val clickedTag = viewModel.findTagByCoord(
             (obj as PlacemarkMapObject).geometry.latitude,
             obj.geometry.longitude
         )
+
         if (clickedTag != null)
             binding.incude.apply {
                 description.text = clickedTag.description
@@ -218,6 +207,7 @@ class MapFragment : Fragment() {
                         0, min(clickedTag.latitude.toString().length, 10)) + ", " +
                             clickedTag.longitude.toString().substring(
                                 0, min(clickedTag.longitude.toString().length, 10))
+
                 author.text = (("Автор: " + (clickedTag.user?.username ?: "-")))
                 likeCount.text = clickedTag.likes.toString()
                 if (clickedTag.isLiked)
@@ -244,39 +234,18 @@ class MapFragment : Fragment() {
     }
 
     fun pickPhoto(){
-        Log.i("sdk", Build.VERSION.SDK_INT.toString())
-        if (Build.VERSION.SDK_INT >= 33) {
-            if (ContextCompat.checkSelfPermission(
-                    requireContext(),
-                    android.Manifest.permission.READ_MEDIA_IMAGES
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                requestPermissions(
-                    arrayOf(android.Manifest.permission.READ_MEDIA_IMAGES),
-                    READ_MEDIA_IMAGES_PERMISSION
-                )
-            } else {
-                startActivityForResult(
-                    Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI),
-                    GALLERY_START_CODE
-                )
-            }
+        val permission = when {
+            Build.VERSION.SDK_INT >= 33 -> android.Manifest.permission.READ_MEDIA_IMAGES
+            else -> android.Manifest.permission.READ_EXTERNAL_STORAGE
+        }
+
+        if (ContextCompat.checkSelfPermission(requireContext(), permission) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(arrayOf(permission), READ_MEDIA_IMAGES_PERMISSION)
         } else {
-            if (ContextCompat.checkSelfPermission(
-                    requireContext(),
-                    android.Manifest.permission.READ_EXTERNAL_STORAGE
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                requestPermissions(
-                    arrayOf(android.Manifest.permission.READ_EXTERNAL_STORAGE),
-                    READ_MEDIA_IMAGES_PERMISSION
-                )
-            } else {
-                startActivityForResult(
-                    Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI),
-                    GALLERY_START_CODE
-                )
-            }
+            startActivityForResult(
+                Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI),
+                GALLERY_START_CODE
+            )
         }
     }
 
@@ -289,8 +258,8 @@ class MapFragment : Fragment() {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
-        if (requestCode == READ_MEDIA_IMAGES_PERMISSION) {
-            if (grantResults.size > 0  && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+        if (requestCode == READ_MEDIA_IMAGES_PERMISSION && grantResults.isNotEmpty()) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
                 startActivityForResult(intent,GALLERY_START_CODE)
             }
@@ -303,11 +272,11 @@ class MapFragment : Fragment() {
             var pickedBitMap : Bitmap? = null
 
             if (pickedPhoto != null) {
-                if (Build.VERSION.SDK_INT >= 33) {
+                pickedBitMap = if (Build.VERSION.SDK_INT >= 33) {
                     val source = ImageDecoder.createSource(requireContext().contentResolver, pickedPhoto)
-                    pickedBitMap = ImageDecoder.decodeBitmap(source)
+                    ImageDecoder.decodeBitmap(source)
                 } else {
-                    pickedBitMap = MediaStore.Images.Media.getBitmap(requireContext().contentResolver,pickedPhoto)
+                    MediaStore.Images.Media.getBitmap(requireContext().contentResolver,pickedPhoto)
                 }
                 photo = createTempFile()
                 FileOutputStream(photo).use {
@@ -317,6 +286,15 @@ class MapFragment : Fragment() {
             }
         }
         super.onActivityResult(requestCode, resultCode, data)
+    }
+
+    fun getToken(){
+        sharedPref = requireActivity().getSharedPreferences("tokens", Context.MODE_PRIVATE)
+        val token = sharedPref.getString(getString(R.string.tag_api_token), null)
+        if (token != null) {
+            viewModel.username = sharedPref.getString(getString(R.string.username), null)
+            viewModel.addToken(token)
+        }
     }
 
     override fun onStart() {
