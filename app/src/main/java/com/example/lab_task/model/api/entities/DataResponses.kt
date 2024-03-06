@@ -1,9 +1,8 @@
-package com.example.lab_task.models
+package com.example.lab_task.model.api.entities
 
 import com.squareup.moshi.Json
 
-
-data class Tag(
+data class TagResponse(
     val id: String,
     val latitude: Double,
     val longitude: Double,
@@ -11,9 +10,9 @@ data class Tag(
     val image: String?,
     var likes: Int,
     @Json(name="is_liked") var isLiked: Boolean,
-    val user: User?
+    val user: UserResponse?
 )
 
-data class User(val id: String, val username: String)
+data class UserResponse(val id: String, val username: String, val type: String = "account")
 
 

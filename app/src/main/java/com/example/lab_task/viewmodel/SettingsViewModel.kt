@@ -1,10 +1,10 @@
-package com.example.lab_task.viewmodels
+package com.example.lab_task.viewmodel
 
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.lab_task.models.TagsWebService
+import com.example.lab_task.model.api.TagsWebService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext

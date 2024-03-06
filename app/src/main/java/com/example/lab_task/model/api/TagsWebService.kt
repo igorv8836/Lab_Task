@@ -1,7 +1,10 @@
-package com.example.lab_task.models
+package com.example.lab_task.model.api
 
-import android.hardware.usb.UsbRequest
-import android.util.Log
+import com.example.lab_task.model.api.entities.RegisterUser
+import com.example.lab_task.model.api.entities.TagResponse
+import com.example.lab_task.model.api.entities.TransmittedTag
+import com.example.lab_task.model.api.entities.UserResponse
+import com.example.lab_task.model.UserAuth
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import retrofit2.Response
@@ -15,16 +18,16 @@ object TagsWebService {
         createTagsApi()
     }
 
-    suspend fun getTags(): Response<List<Tag>> {
+    suspend fun getTags(): Response<List<TagResponse>> {
         return api.getTags(getBearerToken())
     }
 
-    suspend fun addTag(data: PostTag): Response<Tag> {
+    suspend fun addTag(data: TransmittedTag): Response<TagResponse> {
         return api.addTag(data.latitude, data.longitude, data.description, data.image, getBearerToken())
     }
 
-    suspend fun deleteTag(id: String, token: String): Response<String> {
-        return api.deleteTag(id, "Bearer $token")
+    suspend fun deleteTag(id: String): Response<String> {
+        return api.deleteTag(id, getBearerToken())
     }
 
     private fun createTagsApi(): TagsApi {
@@ -40,7 +43,7 @@ object TagsWebService {
         return retrofit.create(TagsApi::class.java)
     }
 
-    suspend fun createAccount(username: String, password: String): Response<User>{
+    suspend fun createAccount(username: String, password: String): Response<UserResponse>{
         return api.registerAccount(RegisterUser(username, password))
     }
 
@@ -48,7 +51,7 @@ object TagsWebService {
         return api.authUser(username, password)
     }
 
-    suspend fun addLike(tagId: String): Response<Tag>{
+    suspend fun addLike(tagId: String): Response<TagResponse>{
         return api.likeTag(tagId, getBearerToken())
     }
 

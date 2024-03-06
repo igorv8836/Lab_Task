@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".fragments.MapFragment">
+    tools:context=".view.fragments.MapFragment">
 
     <com.yandex.mapkit.mapview.MapView
         android:id="@+id/mapview"

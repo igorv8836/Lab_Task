@@ -1,4 +1,4 @@
-package com.example.lab_task.fragments
+package com.example.lab_task.view.fragments
 
 import android.app.AlertDialog
 import android.content.Context
@@ -12,7 +12,7 @@ import android.view.ViewGroup
 import android.widget.EditText
 import com.example.lab_task.R
 import com.example.lab_task.databinding.FragmentSettingsBinding
-import com.example.lab_task.viewmodels.SettingsViewModel
+import com.example.lab_task.viewmodel.SettingsViewModel
 import com.google.android.material.snackbar.Snackbar
 
 class SettingsFragment : Fragment() {

@@ -1,31 +1,26 @@
-package com.example.lab_task.viewmodels
+package com.example.lab_task.viewmodel
 
-import android.app.Application
-import android.content.Context
-import android.content.SharedPreferences
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.util.Log
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.lab_task.models.PostTag
-import com.example.lab_task.models.Tag
-import com.example.lab_task.models.TagsWebService
-import kotlinx.coroutines.CoroutineStart
+import com.example.lab_task.model.api.entities.TagResponse
+import com.example.lab_task.model.api.TagsWebService
+import com.example.lab_task.model.api.entities.TransmittedTag
+import com.example.lab_task.model.repository.MessageListener
+import com.example.lab_task.model.repository.TagRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
-import kotlin.io.encoding.Base64
-import kotlin.io.encoding.ExperimentalEncodingApi
 
 class MapViewModel : ViewModel() {
+    private val repository = TagRepository
     private val tagsWebService = TagsWebService
     val helpingText: MutableLiveData<String> = MutableLiveData()
-    val tags: MutableLiveData<List<Tag>> = MutableLiveData()
-    val changedLikeOfTag: MutableLiveData<Tag> = MutableLiveData()
+    val tags: MutableLiveData<List<TagResponse>> = MutableLiveData()
+    val changedLikeOfTag: MutableLiveData<TagResponse> = MutableLiveData()
     var username: String? = null
     private var token: String? = null
     val photoForNewTag: MutableLiveData<File?> = MutableLiveData()
@@ -36,39 +31,20 @@ class MapViewModel : ViewModel() {
     }
 
     fun getTags(){
-        viewModelScope.launch {
-            try {
-                withContext(Dispatchers.IO) {
-                    val response = tagsWebService.getTags()
-                    if (response.code() == 422)
-                        helpingText.postValue("Ошибка HTTP 422: ${response.message()}")
-                    else
-                        tags.postValue(response.body())
-                }
-            } catch (e: Exception) {
-                helpingText.postValue("Критическая ошибка: ${e.message}")
-                Log.i("api", e.message.toString())
-            }
-        }
+        repository.getTags()
     }
 
     fun addTag(latitude: Double, longitude: Double, description: String, image: Bitmap?){
         viewModelScope.launch {
-            try {
-                withContext(Dispatchers.IO) {
-                    val response = tagsWebService.addTag(PostTag(latitude, longitude, description, image))
-                    if (response.code() == 422) {
-                        helpingText.postValue("Ошибка HTTP 422: ${response.message()}")
-                    } else{
-                        val tags = ArrayList(tags.value)
-                        tags.add(response.body())
-                        this@MapViewModel.tags.postValue(tags)
+            repository.addTag(
+                TransmittedTag(latitude, longitude, description, null),
+                object : MessageListener{
+                    override fun sendMessage(message: String) {
+                        helpingText.postValue(message)
                     }
+
                 }
-            } catch (e: Exception){
-                helpingText.postValue("Критическая ошибка: ${e.message}")
-                Log.i("api_post", e.message.toString())
-            }
+            )
         }
     }
 
@@ -106,7 +82,7 @@ class MapViewModel : ViewModel() {
 
                         when (response.code()){
                             201 -> {
-                                val arr: ArrayList<Tag> = ArrayList(tags.value)
+                                val arr: ArrayList<TagResponse> = ArrayList(tags.value)
                                 for (i in arr)
                                     if (i.id == response.body()?.id) {
                                         i.isLiked = true
@@ -134,7 +110,7 @@ class MapViewModel : ViewModel() {
 
                         when (response.code()){
                             204 -> {
-                                val arr: ArrayList<Tag> = ArrayList(tags.value)
+                                val arr: ArrayList<TagResponse> = ArrayList(tags.value)
                                 for (i in arr)
                                     if (i.id == tagId) {
                                         i.isLiked = false
@@ -157,13 +133,13 @@ class MapViewModel : ViewModel() {
         }
     }
 
-    fun findTagByCoord(latitude: Double, longitude: Double): Tag?{
+    fun findTagByCoord(latitude: Double, longitude: Double): TagResponse?{
         return tags.value?.firstOrNull {
             it.latitude == latitude && it.longitude == longitude
         }
     }
 
-    fun findTagById(tagId: String): Tag? {
+    fun findTagById(tagId: String): TagResponse? {
         return tags.value?.firstOrNull {
             it.id == tagId
         }

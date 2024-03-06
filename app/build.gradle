@@ -1,4 +1,5 @@
 plugins {
+    id "com.google.devtools.ksp"
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
 }
@@ -39,6 +40,11 @@ android {
 }
 
 dependencies {
+    def nav_version = "2.7.7"
+    def moshi_version = "1.12.0"
+    def retrofit_version = "2.9.0"
+    def room_version = "2.6.1"
+
 
     implementation 'androidx.core:core-ktx:1.12.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
@@ -54,15 +60,13 @@ dependencies {
 
     implementation 'com.yandex.android:maps.mobile:4.5.1-lite'
 
-    def retrofit_version = "2.9.0"
+
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
     implementation "com.squareup.retrofit2:converter-moshi:$retrofit_version"
 
-    def moshi_version = "1.12.0"
     implementation "com.squareup.moshi:moshi:$moshi_version"
     implementation "com.squareup.moshi:moshi-kotlin:$moshi_version"
 
-    def nav_version = "2.7.7"
 
     // Kotlin
     implementation("androidx.navigation:navigation-fragment-ktx:$nav_version")
@@ -72,4 +76,9 @@ dependencies {
     implementation("androidx.navigation:navigation-dynamic-features-fragment:$nav_version")
     implementation("com.squareup.picasso:picasso:2.71828")
 
+
+    implementation "androidx.room:room-runtime:$room_version"
+    ksp "androidx.room:room-compiler:$room_version"
+    implementation "androidx.room:room-ktx:$room_version"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3" // Add Coroutine dependency
 }

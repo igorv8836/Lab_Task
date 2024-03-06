@@ -7,14 +7,14 @@
 
     <fragment
         android:id="@+id/mapFragment"
-        android:name="com.example.lab_task.fragments.MapFragment"
+        android:name="com.example.lab_task.view.fragments.MapFragment"
         android:label="fragment_map"
         tools:layout="@layout/fragment_map" >
     </fragment>
 
     <fragment
         android:id="@+id/settingsFragment"
-        android:name="com.example.lab_task.fragments.SettingsFragment"
+        android:name="com.example.lab_task.view.fragments.SettingsFragment"
         android:label="fragment_settings"
         tools:layout="@layout/fragment_settings" >
     </fragment>

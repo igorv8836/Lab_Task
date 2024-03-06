@@ -1,4 +1,4 @@
-package com.yandex.mapkitdemo.objects
+package com.example.lab_task.view
 
 enum class PlacemarkType {
     YELLOW,

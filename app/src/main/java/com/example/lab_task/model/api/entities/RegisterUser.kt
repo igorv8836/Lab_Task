@@ -1,4 +1,4 @@
-package com.example.lab_task.models
+package com.example.lab_task.model.api.entities
 
 data class RegisterUser(
     val username: String,

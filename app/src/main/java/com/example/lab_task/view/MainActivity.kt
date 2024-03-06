@@ -1,9 +1,11 @@
-package com.example.lab_task
+package com.example.lab_task.view
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.navigation.fragment.findNavController
+import com.example.lab_task.BuildConfig
+import com.example.lab_task.R
 import com.example.lab_task.databinding.ActivityMainBinding
 import com.google.android.material.navigation.NavigationBarView
 import com.yandex.mapkit.MapKitFactory

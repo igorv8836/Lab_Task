@@ -1,5 +1,9 @@
-package com.example.lab_task.models
+package com.example.lab_task.model.api
 
+import com.example.lab_task.model.api.entities.RegisterUser
+import com.example.lab_task.model.api.entities.TagResponse
+import com.example.lab_task.model.api.entities.UserResponse
+import com.example.lab_task.model.UserAuth
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -7,7 +11,6 @@ import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
 import retrofit2.http.Header
-import retrofit2.http.Headers
 import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.Part
@@ -17,7 +20,7 @@ interface TagsApi {
     @GET("/api/tags/")
     suspend fun getTags(
         @Header("Authorization") token: String
-    ): Response<List<Tag>>
+    ): Response<List<TagResponse>>
 
     @Multipart
     @POST("/api/tags/")
@@ -27,7 +30,7 @@ interface TagsApi {
         @Part("description") description: String,
         @Part("image") image: String?,
         @Header("Authorization") token: String
-    ): Response<Tag>
+    ): Response<TagResponse>
 
 
     @DELETE("api/tags/{tag_id}")
@@ -40,7 +43,7 @@ interface TagsApi {
     suspend fun likeTag(
         @Path("tag_id") id: String,
         @Header("Authorization") token: String
-    ): Response<Tag>
+    ): Response<TagResponse>
 
     @DELETE("/api/tags/{tag_id}/likes")
     suspend fun deleteLike(
@@ -52,7 +55,7 @@ interface TagsApi {
     @POST("/api/auth/register")
     suspend fun registerAccount(
         @Body request: RegisterUser
-    ): Response<User>
+    ): Response<UserResponse>
 
 
     @FormUrlEncoded

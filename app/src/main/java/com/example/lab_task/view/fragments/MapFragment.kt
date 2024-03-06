@@ -1,4 +1,4 @@
-package com.example.lab_task.fragments
+package com.example.lab_task.view.fragments
 
 import android.annotation.SuppressLint
 import android.app.Activity
@@ -15,7 +15,6 @@ import android.os.Build
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
 import android.provider.MediaStore
-import android.util.Base64
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -24,7 +23,7 @@ import androidx.core.content.ContextCompat
 import com.example.lab_task.R
 import com.example.lab_task.databinding.FragmentMapBinding
 import com.example.lab_task.databinding.NewTagDialogBinding
-import com.example.lab_task.viewmodels.MapViewModel
+import com.example.lab_task.viewmodel.MapViewModel
 import com.google.android.material.snackbar.Snackbar
 import com.squareup.picasso.Picasso
 import com.yandex.mapkit.MapKitFactory
@@ -35,11 +34,10 @@ import com.yandex.mapkit.map.InputListener
 import com.yandex.mapkit.map.Map
 import com.yandex.mapkit.map.MapObjectTapListener
 import com.yandex.mapkit.map.PlacemarkMapObject
-import com.yandex.mapkitdemo.objects.ClusterView
-import com.yandex.mapkitdemo.objects.PlacemarkType
+import com.example.lab_task.view.ClusterView
+import com.example.lab_task.view.PlacemarkType
 import com.yandex.runtime.image.ImageProvider
 import com.yandex.runtime.ui_view.ViewProvider
-import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import kotlin.math.min
