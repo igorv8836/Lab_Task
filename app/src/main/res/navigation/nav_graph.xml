@@ -21,9 +21,15 @@
 
     <action
         android:id="@+id/action_to_settings_fragment"
+        app:launchSingleTop="true"
+        app:popUpTo="@id/settingsFragment"
+        app:popUpToInclusive="false"
         app:destination="@id/settingsFragment" />
 
     <action
         android:id="@+id/action_to_map_fragment"
+        app:launchSingleTop="true"
+        app:popUpTo="@id/mapFragment"
+        app:popUpToInclusive="false"
         app:destination="@id/mapFragment" />
 </navigation>

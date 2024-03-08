@@ -7,6 +7,8 @@ import com.example.lab_task.model.api.entities.UserResponse
 import com.example.lab_task.model.UserAuth
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import okhttp3.MediaType
+import okhttp3.MultipartBody
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
@@ -23,7 +25,9 @@ object TagsWebService {
     }
 
     suspend fun addTag(data: TransmittedTag): Response<TagResponse> {
-        return api.addTag(data.latitude, data.longitude, data.description, data.image, getBearerToken())
+        val requestBody = MultipartBody.create(MediaType.parse("multipart/form-data"), data.image)
+        val photo = MultipartBody.Part.createFormData("image", data.image?.name, requestBody)
+        return api.addTag(data.latitude, data.longitude, data.description, photo, getBearerToken())
     }
 
     suspend fun deleteTag(id: String): Response<String> {
@@ -59,9 +63,5 @@ object TagsWebService {
         return api.deleteLike(tagId, getBearerToken())
     }
 
-    suspend fun getPhoto(path: String): Response<String>{
-        return api.getPhoto(path)
-    }
-
-    fun getBearerToken(): String = "Bearer $token"
+    private fun getBearerToken(): String = "Bearer $token"
 }

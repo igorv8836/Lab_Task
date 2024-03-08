@@ -16,11 +16,6 @@ import com.example.lab_task.viewmodel.SettingsViewModel
 import com.google.android.material.snackbar.Snackbar
 
 class SettingsFragment : Fragment() {
-
-    companion object {
-        fun newInstance() = SettingsFragment()
-    }
-
     private lateinit var binding: FragmentSettingsBinding
     private lateinit var viewModel: SettingsViewModel
     private lateinit var sharedPref: SharedPreferences
@@ -37,14 +32,9 @@ class SettingsFragment : Fragment() {
         super.onActivityCreated(savedInstanceState)
         viewModel = ViewModelProvider(this)[SettingsViewModel::class.java]
         sharedPref = requireActivity().getSharedPreferences("tokens", Context.MODE_PRIVATE)
+        viewModel.getErrorMessage()
 
-        val token = sharedPref.getString(getString(R.string.tag_api_token), null)
-        var username: String? = null
-        if (token != null){
-            username = sharedPref.getString(getString(R.string.username), null)
-            binding.mainText.text = username
-            showExitLayout()
-        }
+
 
 
 
@@ -78,13 +68,14 @@ class SettingsFragment : Fragment() {
             }
         }
 
-        viewModel.username.observe(viewLifecycleOwner){
-            with (sharedPref.edit()) {
-                putString(getString(R.string.username), it)
-                apply()
+        viewModel.isAuthed.observe(viewLifecycleOwner){
+            if (it) {
+                binding.mainText.text = "Авторизован"
+                showExitLayout()
+            } else {
+                binding.mainText.text = "Не авторизован"
+                showLogInLayout()
             }
-            binding.mainText.text = it
-            showExitLayout()
         }
     }
 

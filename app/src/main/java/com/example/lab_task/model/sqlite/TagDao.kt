@@ -3,8 +3,8 @@ package com.example.lab_task.model.sqlite
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import androidx.room.Update
 import com.example.lab_task.model.api.entities.UserResponse
 import com.example.lab_task.model.UserAuth
 import kotlinx.coroutines.flow.Flow
@@ -18,11 +18,11 @@ interface TagDao {
     @Query("SELECT * FROM tags WHERE id = :id")
     fun getTag(id: String): Flow<TagEntity>
 
-    @Insert()
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertTag(tag: TagEntity)
 
-    @Update()
-    fun updateTag(tag: TagEntity)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertTags(tags: List<TagEntity>)
 
     @Query("DELETE FROM tags WHERE id = :id")
     fun deleteTag(id: String)
@@ -30,27 +30,20 @@ interface TagDao {
 
 
     @Query("SELECT * FROM user WHERE type = 'account'")
-    fun getUser(): Flow<UserResponse>
+    fun getUser(): Flow<UserEntity>
 
-    @Insert()
-    fun insertUser(tag: UserResponse)
-
-    @Update()
-    fun updateUser(tag: UserResponse)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertUser(tag: UserEntity)
 
     @Delete
-    fun deleteUser(tag: UserResponse)
+    fun deleteUser(tag: UserEntity)
 
     @Query("SELECT * FROM tokens WHERE type = 'auth_token'")
-    fun getToken(): Flow<UserAuth>
+    fun getToken(): TokenEntity
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertToken(tag: TokenEntity)
 
-    @Insert()
-    fun insertToken(tag: UserAuth)
-
-    @Update()
-    fun updateToken(tag: UserAuth)
-
-    @Delete
-    fun deleteToken(tag: UserAuth)
+    @Query("DELETE FROM tokens WHERE type = 'auth_token'")
+    fun deleteToken()
 }

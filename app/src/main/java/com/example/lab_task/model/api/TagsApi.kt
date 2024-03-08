@@ -4,6 +4,7 @@ import com.example.lab_task.model.api.entities.RegisterUser
 import com.example.lab_task.model.api.entities.TagResponse
 import com.example.lab_task.model.api.entities.UserResponse
 import com.example.lab_task.model.UserAuth
+import okhttp3.MultipartBody
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -28,7 +29,7 @@ interface TagsApi {
         @Part("latitude") latitude: Double,
         @Part("longitude") longitude: Double,
         @Part("description") description: String,
-        @Part("image") image: String?,
+        @Part image: MultipartBody.Part?,
         @Header("Authorization") token: String
     ): Response<TagResponse>
 

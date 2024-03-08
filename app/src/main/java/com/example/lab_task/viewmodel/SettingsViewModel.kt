@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.lab_task.model.api.TagsWebService
+import com.example.lab_task.model.repository.TagRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -13,7 +14,12 @@ class SettingsViewModel : ViewModel() {
     private val webService = TagsWebService
     val snackbarText = MutableLiveData<String>()
     val token = MutableLiveData<String?>()
-    val username = MutableLiveData<String>()
+    val isAuthed = MutableLiveData<Boolean>()
+    private val repository = TagRepository
+
+    init {
+        getAuthUser()
+    }
 
 
     fun createAccount(username: String, password: String){
@@ -43,36 +49,37 @@ class SettingsViewModel : ViewModel() {
         }
     }
 
+    fun getAuthUser(){
+        viewModelScope.launch {
+            repository.checkAuth().collect{
+                if (it)
+                    isAuthed.postValue(true)
+                else
+                    isAuthed.postValue(false)
+            }
+        }
+    }
+
+    fun getErrorMessage(){
+        viewModelScope.launch {
+            repository.errorMessage.collect{
+                snackbarText.postValue(it)
+            }
+        }
+    }
+
     fun authAccount(username: String, password: String){
         viewModelScope.launch {
-            try {
-                withContext(Dispatchers.IO){
-                    val response = webService.auth(username, password)
-
-                    when(response.code()){
-                        200 -> {
-                            token.postValue(response.body()?.access_token)
-                            this@SettingsViewModel.username.postValue(username)
-                        }
-                        400 -> {
-                            snackbarText.postValue(
-                                "Неверный логин или пароль или пользователь не верифицирован"
-                            )
-                        }
-                        422 -> {
-                            snackbarText.postValue("Ошибка HTTP 422: ${response.message()}")
-                        }
-                    }
-                }
-            } catch (e: Exception){
-                snackbarText.postValue("Критическая ошибка: ${e.message}")
-                Log.i("logIn", e.message.toString())
+            repository.auth(username, password).collect() {
+                this@SettingsViewModel.isAuthed.postValue(true)
             }
         }
     }
 
     fun logOut(){
-        username.value = "Не авторизован"
-        token.value = null
+        isAuthed.value = false
+        viewModelScope.launch {
+            repository.logOut()
+        }
     }
 }

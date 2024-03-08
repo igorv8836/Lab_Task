@@ -1,171 +1,113 @@
 package com.example.lab_task.viewmodel
 
 import android.graphics.Bitmap
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.lab_task.model.api.entities.TagResponse
 import com.example.lab_task.model.api.TagsWebService
 import com.example.lab_task.model.api.entities.TransmittedTag
-import com.example.lab_task.model.repository.MessageListener
 import com.example.lab_task.model.repository.TagRepository
-import kotlinx.coroutines.Dispatchers
+import com.example.lab_task.model.sqlite.TagEntity
+import com.example.lab_task.view.MapPosition
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.io.File
 
 class MapViewModel : ViewModel() {
     private val repository = TagRepository
     private val tagsWebService = TagsWebService
+
+    val startingPos: MutableLiveData<MapPosition> = MutableLiveData()
     val helpingText: MutableLiveData<String> = MutableLiveData()
-    val tags: MutableLiveData<List<TagResponse>> = MutableLiveData()
-    val changedLikeOfTag: MutableLiveData<TagResponse> = MutableLiveData()
-    var username: String? = null
-    private var token: String? = null
+    val tags: MutableLiveData<List<TagEntity>> = MutableLiveData()
+    val openedTag: MutableLiveData<TagEntity> = MutableLiveData()
     val photoForNewTag: MutableLiveData<File?> = MutableLiveData()
+    val photoPathForOpenTag: MutableLiveData<String?> = MutableLiveData()
+
+    init {
+        initToken()
+    }
+
+    fun getStartingPos(){
+        viewModelScope.launch{
+            repository.getStartingPos().collect{
+                startingPos.postValue(it)
+            }
+        }
+    }
+
+    fun setStartingPos(position: MapPosition){
+        repository.setStartingPos(position)
+    }
 
 
-    fun addToken(token: String){
-        tagsWebService.token = token
+    fun initToken(){
+        viewModelScope.launch {
+            repository.setTokenFromLocal()
+        }
+    }
+
+    fun getErrorMessage(){
+        viewModelScope.launch {
+            repository.errorMessage.collect{
+                if (it != null)
+                    helpingText.postValue(it)
+            }
+        }
+    }
+
+    fun getPhotoPath(path: String){
+        photoPathForOpenTag.value = repository.getPhotoPath(path)
     }
 
     fun getTags(){
-        repository.getTags()
+        viewModelScope.launch{
+            repository.getTags().collect{
+                tags.value = it
+                checkOpenTag()
+            }
+        }
+    }
+
+    fun openTagInfoFrame(tagId: String){
+        findTagById(tagId)?.let {
+            openedTag.value = it
+            getPhotoPath(it.imagePath ?: "")
+        }
+    }
+
+    private fun checkOpenTag(){
+        val openTag = openedTag.value
+        val foundTag = tags.value?.firstOrNull { it.id == openTag?.id }
+        if (openTag != foundTag)
+            foundTag.let { openedTag.value = it }
     }
 
     fun addTag(latitude: Double, longitude: Double, description: String, image: Bitmap?){
         viewModelScope.launch {
-            repository.addTag(
-                TransmittedTag(latitude, longitude, description, null),
-                object : MessageListener{
-                    override fun sendMessage(message: String) {
-                        helpingText.postValue(message)
-                    }
-
-                }
-            )
+            repository.addTag(TransmittedTag(latitude, longitude, description, photoForNewTag.value))
         }
     }
 
-    fun auth(username: String, password: String){
+    fun findTagById(tagId: String) = tags.value?.firstOrNull { it.id == tagId }
+
+    fun changeLike(id: String){
+        val foundTag = findTagById(id) ?: return
         viewModelScope.launch {
-            try {
-                val response = tagsWebService.auth(username, password)
-                when(response.code()){
-                    200 -> {
-                        token = response.body()?.access_token
-                    }
-                    400 -> {
-                        helpingText.postValue(
-                            "Неверный логин или пароль или пользователь не верифицирован"
-                        )
-                    }
-                    422 -> {
-                        helpingText.postValue("Ошибка HTTP 422: ${response.message()}")
-                    }
-                }
-            } catch (e: Exception){
-                helpingText.postValue("Критическая ошибка: ${e.message}")
-                Log.i("auth_api", e.message.toString())
+            if (!foundTag.isLiked) {
+                repository.addLike(foundTag.id)
+            }else {
+                repository.deleteLike(foundTag.id)
             }
         }
     }
 
-    fun changeLike(tagId: String){
-        val foundTag = findTagById(tagId) ?: return
-        if (!foundTag.isLiked){
-            viewModelScope.launch {
-                try {
-                    withContext(Dispatchers.IO) {
-                        val response = tagsWebService.addLike(tagId)
-
-                        when (response.code()){
-                            201 -> {
-                                val arr: ArrayList<TagResponse> = ArrayList(tags.value)
-                                for (i in arr)
-                                    if (i.id == response.body()?.id) {
-                                        i.isLiked = true
-                                        i.likes++
-                                        break
-                                    }
-                                tags.postValue(arr)
-                                changedLikeOfTag.postValue(response.body())
-                            }
-                            422 -> {
-                                helpingText.postValue("Ошибка HTTP 422: ${response.message()}")
-                            }
-                        }
-                    }
-                } catch (e: Exception){
-                    helpingText.postValue("Критическая ошибка: ${e.message}")
-                    Log.i("api_like", e.message.toString())
-                }
-            }
-        } else {
-            viewModelScope.launch {
-                try {
-                    withContext(Dispatchers.IO) {
-                        val response = tagsWebService.deleteLike(tagId)
-
-                        when (response.code()){
-                            204 -> {
-                                val arr: ArrayList<TagResponse> = ArrayList(tags.value)
-                                for (i in arr)
-                                    if (i.id == tagId) {
-                                        i.isLiked = false
-                                        i.likes--
-                                        changedLikeOfTag.postValue(i)
-                                        break
-                                    }
-                                tags.postValue(arr)
-                            }
-                            422 -> {
-                                helpingText.postValue("Ошибка HTTP 422: ${response.message()}")
-                            }
-                        }
-                    }
-                } catch (e: Exception){
-                    helpingText.postValue("Критическая ошибка: ${e.message}")
-                    Log.i("api_like_delete", e.message.toString())
-                }
-            }
-        }
-    }
-
-    fun findTagByCoord(latitude: Double, longitude: Double): TagResponse?{
-        return tags.value?.firstOrNull {
-            it.latitude == latitude && it.longitude == longitude
-        }
-    }
-
-    fun findTagById(tagId: String): TagResponse? {
-        return tags.value?.firstOrNull {
-            it.id == tagId
-        }
-    }
-
-    fun getPhoto(path: String): String {
-        return tagsWebService.url + path
-    }
-
-    fun setImage(file: File?){
+    fun setSelectedImage(file: File?){
         photoForNewTag.value = file
     }
 
     fun deleteTag(tagId: String){
         viewModelScope.launch {
-            try{
-                val response = tagsWebService.deleteTag(tagId, token ?: "")
-                Log.i("delete_api", response.message())
-            } catch (e: Exception){
-                helpingText.postValue("Критическая ошибка: ${e.message}")
-                Log.i("delete_api", e.message.toString())
-            }
+            repository.deleteTag(tagId)
         }
-    }
-
-    fun updateToken(){
-
     }
 }
