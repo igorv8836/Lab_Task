@@ -9,6 +9,7 @@ import com.example.lab_task.model.api.entities.TransmittedTag
 import com.example.lab_task.model.repository.TagRepository
 import com.example.lab_task.model.sqlite.TagEntity
 import com.example.lab_task.view.MapPosition
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.io.File
 
@@ -22,6 +23,8 @@ class MapViewModel : ViewModel() {
     val openedTag: MutableLiveData<TagEntity> = MutableLiveData()
     val photoForNewTag: MutableLiveData<File?> = MutableLiveData()
     val photoPathForOpenTag: MutableLiveData<String?> = MutableLiveData()
+    val showDeleteButton: MutableLiveData<Boolean> = MutableLiveData()
+    val showSubscribeButton: MutableLiveData<Boolean> = MutableLiveData()
 
     init {
         initToken()
@@ -68,8 +71,24 @@ class MapViewModel : ViewModel() {
         }
     }
 
+    private fun showDeleteButton(tagId: String){
+        viewModelScope.launch{
+            val res = repository.checkIsAuthor(tagId).first()
+            showDeleteButton.postValue(res)
+        }
+    }
+
+    private fun showSubscribeButton(tagId: String){
+        viewModelScope.launch{
+            val res = repository.checkIsAuthor(tagId).first()
+            showSubscribeButton.postValue(!res)
+        }
+    }
+
     fun openTagInfoFrame(tagId: String){
         findTagById(tagId)?.let {
+            showDeleteButton(it.id)
+            showSubscribeButton(it.id)
             openedTag.value = it
             getPhotoPath(it.imagePath ?: "")
         }

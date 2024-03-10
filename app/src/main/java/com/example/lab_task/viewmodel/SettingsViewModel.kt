@@ -11,51 +11,28 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class SettingsViewModel : ViewModel() {
-    private val webService = TagsWebService
     val snackbarText = MutableLiveData<String>()
-    val token = MutableLiveData<String?>()
     val isAuthed = MutableLiveData<Boolean>()
+    val username = MutableLiveData<String>()
     private val repository = TagRepository
 
     init {
         getAuthUser()
+        getErrorMessage()
     }
 
 
     fun createAccount(username: String, password: String){
         viewModelScope.launch {
-            try {
-                val response = withContext(Dispatchers.IO) {
-                    webService.createAccount(username, password)
-                }
-
-                when (response.code()) {
-                    201 -> {
-                        snackbarText.value = "Успешно зарегистрирован аккаунт " + response.body()?.username
-                    }
-
-                    400 -> {
-                        snackbarText.value = "Такой аккаунт существует или неверный пароль"
-                    }
-
-                    422 -> {
-                        snackbarText.value = response.message()
-                    }
-                }
-            } catch (e: Exception) {
-                snackbarText.postValue("Критическая ошибка: ${e.message}")
-                Log.i("api", e.message.toString())
-            }
+            repository.createAccount(username, password)
         }
     }
 
     fun getAuthUser(){
         viewModelScope.launch {
             repository.checkAuth().collect{
-                if (it)
-                    isAuthed.postValue(true)
-                else
-                    isAuthed.postValue(false)
+                if (it != null)
+                    username.value = it
             }
         }
     }
@@ -72,12 +49,14 @@ class SettingsViewModel : ViewModel() {
         viewModelScope.launch {
             repository.auth(username, password).collect() {
                 this@SettingsViewModel.isAuthed.postValue(true)
+                this@SettingsViewModel.username.postValue(username)
             }
         }
     }
 
     fun logOut(){
         isAuthed.value = false
+        username.value = "Не авторизован"
         viewModelScope.launch {
             repository.logOut()
         }

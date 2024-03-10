@@ -25,8 +25,10 @@ object TagsWebService {
     }
 
     suspend fun addTag(data: TransmittedTag): Response<TagResponse> {
+        if (data.image == null)
+            return api.addTag(data.latitude, data.longitude, data.description, null, getBearerToken())
         val requestBody = MultipartBody.create(MediaType.parse("multipart/form-data"), data.image)
-        val photo = MultipartBody.Part.createFormData("image", data.image?.name, requestBody)
+        val photo = MultipartBody.Part.createFormData("image", data.image.name, requestBody)
         return api.addTag(data.latitude, data.longitude, data.description, photo, getBearerToken())
     }
 

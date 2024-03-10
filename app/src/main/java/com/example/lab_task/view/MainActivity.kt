@@ -8,6 +8,7 @@ import com.example.lab_task.BuildConfig
 import com.example.lab_task.R
 import com.example.lab_task.databinding.ActivityMainBinding
 import com.example.lab_task.databinding.FragmentMapBinding
+import com.example.lab_task.view.fragments.ListFragment
 import com.example.lab_task.view.fragments.MapFragment
 import com.example.lab_task.view.fragments.SettingsFragment
 import com.google.android.material.navigation.NavigationBarView
@@ -17,6 +18,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     lateinit var mapFragment: MapFragment
     lateinit var settingsFragment: SettingsFragment
+    lateinit var listFragment: ListFragment
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         MapKitFactory.setApiKey(BuildConfig.MAPKIT_API_KEY)
@@ -24,8 +26,11 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        supportActionBar?.hide()
+ 
         mapFragment = MapFragment()
         settingsFragment = SettingsFragment()
+        listFragment = ListFragment()
 
         supportFragmentManager.beginTransaction().replace(R.id.nav_host, mapFragment).commit()
 
@@ -36,7 +41,12 @@ class MainActivity : AppCompatActivity() {
                         supportFragmentManager.beginTransaction()
                             .replace(R.id.nav_host, mapFragment).commit()
                         return true
+                    }
 
+                    R.id.menu_list -> {
+                        supportFragmentManager.beginTransaction()
+                            .replace(R.id.nav_host, listFragment).commit()
+                        return true
                     }
 
                     R.id.menu_settings -> {
@@ -54,12 +64,10 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        FragmentMapBinding.inflate(layoutInflater).mapview.onStart()
         MapKitFactory.getInstance().onStart()
     }
 
     override fun onStop() {
-        FragmentMapBinding.inflate(layoutInflater).mapview.onStop()
         MapKitFactory.getInstance().onStop()
         super.onStop()
     }

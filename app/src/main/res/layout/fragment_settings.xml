@@ -8,7 +8,7 @@
 
 
     <TextView
-        android:id="@+id/main_text"
+        android:id="@+id/username"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Не авторизован"
@@ -28,7 +28,7 @@
         android:layout_marginTop="@dimen/margin_small"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/main_text">
+        app:layout_constraintTop_toBottomOf="@+id/username">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/register_button"
@@ -58,7 +58,7 @@
         android:layout_marginTop="@dimen/margin_small"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/main_text">
+        app:layout_constraintTop_toBottomOf="@+id/username">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/exit_button"

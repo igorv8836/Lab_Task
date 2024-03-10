@@ -2,12 +2,14 @@ package com.example.lab_task.model.repository
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.util.Log
 import com.example.lab_task.App
 import com.example.lab_task.R
 import com.example.lab_task.model.api.TagsWebService
 import com.example.lab_task.model.sqlite.TagEntity
 import com.example.lab_task.model.api.entities.TransmittedTag
 import com.example.lab_task.model.sqlite.TokenEntity
+import com.example.lab_task.model.sqlite.UserEntity
 import com.example.lab_task.view.MapPosition
 import com.squareup.picasso.Picasso
 import kotlinx.coroutines.Dispatchers
@@ -39,24 +41,10 @@ object TagRepository {
         return database.getTags()
     }
 
-    suspend fun checkAuth(): Flow<Boolean>{
-        return try {
-            flow<Boolean> {
-                val tk: TokenEntity? = database.getToken()
-                if (tk != null) {
-                    api.token = tk.access_token
-                    emit(true)
-                } else
-                    emit(false)
-            }.flowOn(Dispatchers.IO)
-        }
-        catch (e: Exception) {
-            errorMessage.emit("Error: ${e.message.toString()}")
-            flow<Boolean> {
-                emit(false)
-            }
-        }
-    }
+        suspend fun checkAuth() = flow {
+                val user: UserEntity? = database.getUser().first()
+                emit(user?.username)
+                }.flowOn(Dispatchers.IO)
 
     suspend fun setTokenFromLocal(){
         try {
@@ -91,6 +79,9 @@ object TagRepository {
                 when (response.code()) {
                     200 -> {
                         response.body()?.let { TokenEntity(it) }?.let { database.insertToken(it) }
+                        response.body()?.let { TokenEntity(it) }?.let { database.insertUser(
+                            UserEntity("", username)
+                        ) }
                         emit(username)
                         api.token = response.body()?.access_token ?: ""
                     }
@@ -100,8 +91,6 @@ object TagRepository {
             } catch (e: Exception) { errorMessage.emit("Error: ${e.message.toString()}") }
         }.flowOn(Dispatchers.IO)
     }
-
-    fun getPhotoRemotePath(path: String) = "${api.url}$path"
 
     suspend fun addLike(tagId: String) {
          withContext(Dispatchers.IO) {
@@ -143,6 +132,7 @@ object TagRepository {
     suspend fun logOut(){
         withContext(Dispatchers.IO) {
             database.deleteToken()
+            database.deleteUser()
             api.token = ""
         }
     }
@@ -189,13 +179,26 @@ object TagRepository {
 
     suspend fun createAccount(username: String, password: String) {
         try {
-
-        }catch (e: Exception){
-
+            val response = withContext(Dispatchers.IO) { api.createAccount(username, password) }
+            when (response.code()) {
+                201 -> errorMessage.emit("Успешно зарегистрирован аккаунт " + response.body()?.username)
+                400 -> errorMessage.emit("Такой аккаунт существует или неверный пароль")
+                422 -> errorMessage.emit(response.message())
+            }
+        } catch (e: Exception) {
+            errorMessage.emit("Критическая ошибка: ${e.message}")
+            Log.i("api", e.message.toString())
         }
     }
-//
-//    suspend fun getPhoto(path: String): Response<String> {
-//
-//    }
+
+    suspend fun checkIsAuthor(id: String) = flow<Boolean> {
+        val username = database.getUser().first()
+        val tag = database.getTag(id).first()
+
+        if (tag == null || username == null || tag.username == null) {
+            emit(false)
+        } else {
+            emit(username.username == tag.username)
+        }
+    }.flowOn(Dispatchers.IO)
 }

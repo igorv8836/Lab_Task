@@ -35,8 +35,8 @@ interface TagDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertUser(tag: UserEntity)
 
-    @Delete
-    fun deleteUser(tag: UserEntity)
+    @Query("DELETE FROM user WHERE type = 'account'")
+    fun deleteUser()
 
     @Query("SELECT * FROM tokens WHERE type = 'auth_token'")
     fun getToken(): TokenEntity

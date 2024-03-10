@@ -31,49 +31,27 @@ class SettingsFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         viewModel = ViewModelProvider(this)[SettingsViewModel::class.java]
-        sharedPref = requireActivity().getSharedPreferences("tokens", Context.MODE_PRIVATE)
-        viewModel.getErrorMessage()
 
 
-
-
-
-        viewModel.snackbarText.observe(viewLifecycleOwner){
-            Snackbar.make(binding.root, it, Snackbar.LENGTH_SHORT).show()
-        }
-
-        binding.registerButton.setOnClickListener {
-            showAuthDialog(true)
-        }
-        binding.loginButton.setOnClickListener {
-            showAuthDialog(false)
-        }
-        binding.exitButton.setOnClickListener {
-            viewModel.logOut()
-        }
-
-        viewModel.token.observe(viewLifecycleOwner){
-            if (it != null)
-                with (sharedPref.edit()) {
-                    putString(getString(R.string.tag_api_token), it)
-                    apply()
-                }
-            else {
-                with(sharedPref.edit()) {
-                    remove(getString(R.string.tag_api_token))
-                    remove(getString(R.string.username))
-                    apply()
-                }
-                showLogInLayout()
+        with(viewModel){
+            getAuthUser()
+            snackbarText.observe(viewLifecycleOwner){
+                Snackbar.make(binding.root, it, Snackbar.LENGTH_SHORT).show()
+            }
+            username.observe(viewLifecycleOwner){
+                binding.username.text = it
+                showExitLayout()
+            }
+            username.observe(viewLifecycleOwner){
+                binding.username.text = it
             }
         }
 
-        viewModel.isAuthed.observe(viewLifecycleOwner){
-            if (it) {
-                binding.mainText.text = "Авторизован"
-                showExitLayout()
-            } else {
-                binding.mainText.text = "Не авторизован"
+        with(binding){
+            registerButton.setOnClickListener { showAuthDialog(true) }
+            loginButton.setOnClickListener { showAuthDialog(false) }
+            exitButton.setOnClickListener {
+                viewModel.logOut()
                 showLogInLayout()
             }
         }
@@ -117,7 +95,6 @@ class SettingsFragment : Fragment() {
                         )
                 }
         }
-
         builder.setNegativeButton("Отменить") { dialog, which ->
             dialog.dismiss()
         }

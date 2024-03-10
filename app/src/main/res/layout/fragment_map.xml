@@ -22,7 +22,7 @@
         android:layout_height="wrap_content">
 
         <include
-            android:id="@+id/incude"
+            android:id="@+id/tag_info_layout"
             layout="@layout/tag_managing"/>
     </FrameLayout>
 
@@ -37,7 +37,7 @@
         android:layout_height="wrap_content">
 
         <include
-            android:id="@+id/incude_add_tag"
+            android:id="@+id/add_tag_button_layout"
             layout="@layout/add_new_tag_button"/>
     </FrameLayout>
 
