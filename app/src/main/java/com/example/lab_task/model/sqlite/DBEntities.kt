@@ -12,7 +12,7 @@ class TagEntity(
     val latitude: Double,
     val longitude: Double,
     val description: String,
-    val imagePath: String?,
+    var imagePath: String?,
     var likes: Int,
     var isLiked: Boolean,
     val userId: String?,

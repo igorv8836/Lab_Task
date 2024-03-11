@@ -32,7 +32,11 @@ object TagRepository {
             withContext(Dispatchers.IO) {
                 val response = api.getTags()
                 when(response.code()){
-                    200 -> database.insertTags(response.body()!!.map {TagEntity(it)})
+                    200 -> database.insertTags(response.body()!!.map {
+                            val temp = it
+                            temp.image.let { temp.image = api.url + temp.image }
+                            TagEntity(temp)
+                        })
                     else -> errorMessage.emit("${response.code()}: ${response.message()}") }
             }
         } catch (e: Exception){
@@ -99,7 +103,9 @@ object TagRepository {
                 when (response.code()) {
                     201 -> {
                         response.body()?.let { TagEntity(it) }?.let {
-                            database.insertTag(it)
+                            val temp = it
+                            temp.imagePath = api.url + temp.imagePath
+                            database.insertTag(temp)
                         }
                     }
                     else -> {
@@ -137,7 +143,7 @@ object TagRepository {
         }
     }
 
-    fun getPhotoPath(path: String) = "${api.url}$path"
+//    fun getPhotoPath(path: String) = "${api.url}$path"
 
     fun getStartingPos(): Flow<MapPosition>{
         return flow<MapPosition> {

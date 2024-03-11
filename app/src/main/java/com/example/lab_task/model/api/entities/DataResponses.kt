@@ -7,7 +7,7 @@ data class TagResponse(
     val latitude: Double,
     val longitude: Double,
     val description: String,
-    val image: String?,
+    var image: String?,
     var likes: Int,
     @Json(name="is_liked") var isLiked: Boolean,
     val user: UserResponse?

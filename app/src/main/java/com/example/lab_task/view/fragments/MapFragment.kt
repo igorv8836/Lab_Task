@@ -16,7 +16,6 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmapOrNull
 import com.example.lab_task.R
@@ -25,7 +24,6 @@ import com.example.lab_task.databinding.NewTagDialogBinding
 import com.example.lab_task.viewmodel.MapViewModel
 import com.google.android.material.snackbar.Snackbar
 import com.squareup.picasso.Picasso
-import com.yandex.mapkit.MapKitFactory
 import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.map.CameraPosition
 import com.yandex.mapkit.map.ClusterListener
@@ -114,12 +112,12 @@ class MapFragment : Fragment() {
                 Snackbar.make(binding.root, it, Snackbar.LENGTH_SHORT).show()
             }
 
-            photoPathForOpenTag.observe(viewLifecycleOwner) {
-                Picasso.get().load(it).resize(
-                    resources.getDimensionPixelSize(R.dimen.image_size),
-                    resources.getDimensionPixelSize(R.dimen.image_size)
-                ).centerCrop().into(binding.tagInfoLayout.image)
-            }
+//            photoPathForOpenTag.observe(viewLifecycleOwner) {
+//                Picasso.get().load(it).resize(
+//                    resources.getDimensionPixelSize(R.dimen.image_size),
+//                    resources.getDimensionPixelSize(R.dimen.image_size)
+//                ).centerCrop().into(binding.tagInfoLayout.image)
+//            }
 
             showDeleteButton.observe(viewLifecycleOwner){
                 binding.tagInfoLayout.deleteButton.visibility = if (it) View.VISIBLE else View.GONE
@@ -148,8 +146,7 @@ class MapFragment : Fragment() {
                 viewModel.addTag(
                     userPlacemark!!.geometry.latitude,
                     userPlacemark!!.geometry.longitude,
-                    bindingDialog.editTextDescriptionInputText.text.toString(),
-                    null
+                    bindingDialog.editTextDescriptionInputText.text.toString()
                 )
             }.setNegativeButton("Отменить") { dialog, _ ->
                 dialog.dismiss()
@@ -204,6 +201,12 @@ class MapFragment : Fragment() {
                 binding.tagInfoFrame.visibility = View.GONE
                 return@observe
             }
+
+            Picasso.get().load(it.imagePath).resize(
+                resources.getDimensionPixelSize(R.dimen.image_size),
+                resources.getDimensionPixelSize(R.dimen.image_size)
+            ).centerCrop().into(binding.tagInfoLayout.image)
+
             with(binding.tagInfoLayout) {
                 description.text = it.description
                 coordinates.text = it.getFormatCoord()
@@ -214,7 +217,7 @@ class MapFragment : Fragment() {
                 else
                     like.setImageResource(R.drawable.heart)
                 binding.tagInfoFrame.visibility = View.VISIBLE
-                viewModel.getPhotoPath(it.imagePath ?: "")
+//                viewModel.getPhotoPath(it.imagePath ?: "")
 
                 like.setOnClickListener { _ -> viewModel.changeLike(it.id) }
                 deleteButton.setOnClickListener { _ ->

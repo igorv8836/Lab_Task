@@ -1,10 +1,8 @@
 package com.example.lab_task.viewmodel
 
-import android.graphics.Bitmap
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.lab_task.model.api.TagsWebService
 import com.example.lab_task.model.api.entities.TransmittedTag
 import com.example.lab_task.model.repository.TagRepository
 import com.example.lab_task.model.sqlite.TagEntity
@@ -15,14 +13,13 @@ import java.io.File
 
 class MapViewModel : ViewModel() {
     private val repository = TagRepository
-    private val tagsWebService = TagsWebService
 
     val startingPos: MutableLiveData<MapPosition> = MutableLiveData()
     val helpingText: MutableLiveData<String> = MutableLiveData()
     val tags: MutableLiveData<List<TagEntity>> = MutableLiveData()
     val openedTag: MutableLiveData<TagEntity> = MutableLiveData()
     val photoForNewTag: MutableLiveData<File?> = MutableLiveData()
-    val photoPathForOpenTag: MutableLiveData<String?> = MutableLiveData()
+//    val photoPathForOpenTag: MutableLiveData<String?> = MutableLiveData()
     val showDeleteButton: MutableLiveData<Boolean> = MutableLiveData()
     val showSubscribeButton: MutableLiveData<Boolean> = MutableLiveData()
 
@@ -43,7 +40,7 @@ class MapViewModel : ViewModel() {
     }
 
 
-    fun initToken(){
+    private fun initToken(){
         viewModelScope.launch {
             repository.setTokenFromLocal()
         }
@@ -58,9 +55,9 @@ class MapViewModel : ViewModel() {
         }
     }
 
-    fun getPhotoPath(path: String){
-        photoPathForOpenTag.value = repository.getPhotoPath(path)
-    }
+//    fun getPhotoPath(path: String){
+//        photoPathForOpenTag.value = repository.getPhotoPath(path)
+//    }
 
     fun getTags(){
         viewModelScope.launch{
@@ -90,7 +87,7 @@ class MapViewModel : ViewModel() {
             showDeleteButton(it.id)
             showSubscribeButton(it.id)
             openedTag.value = it
-            getPhotoPath(it.imagePath ?: "")
+//            getPhotoPath(it.imagePath ?: "")
         }
     }
 
@@ -101,13 +98,13 @@ class MapViewModel : ViewModel() {
             foundTag.let { openedTag.value = it }
     }
 
-    fun addTag(latitude: Double, longitude: Double, description: String, image: Bitmap?){
+    fun addTag(latitude: Double, longitude: Double, description: String){
         viewModelScope.launch {
             repository.addTag(TransmittedTag(latitude, longitude, description, photoForNewTag.value))
         }
     }
 
-    fun findTagById(tagId: String) = tags.value?.firstOrNull { it.id == tagId }
+    private fun findTagById(tagId: String) = tags.value?.firstOrNull { it.id == tagId }
 
     fun changeLike(id: String){
         val foundTag = findTagById(id) ?: return

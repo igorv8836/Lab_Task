@@ -60,6 +60,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/search_edit_text"
         android:layout_margin="@dimen/margin_medium"
+        tools:listitem="@layout/recycler_item"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 </androidx.constraintlayout.widget.ConstraintLayout>
