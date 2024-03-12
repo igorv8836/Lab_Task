@@ -7,7 +7,7 @@ import com.example.lab_task.model.api.entities.TagResponse
 import kotlin.math.min
 
 @Entity(tableName = "tags")
-class TagEntity(
+open class TagEntity(
     @PrimaryKey val id: String,
     val latitude: Double,
     val longitude: Double,

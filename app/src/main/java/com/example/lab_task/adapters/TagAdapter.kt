@@ -4,14 +4,20 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.VISIBLE
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.example.lab_task.R
 import com.example.lab_task.databinding.RecyclerItemBinding
 import com.example.lab_task.model.sqlite.TagEntity
 import com.squareup.picasso.Picasso
 
-class TagAdapter(private var data: List<TagEntity>): RecyclerView.Adapter<TagAdapter.TagViewHolder>() {
+class TagAdapter(var data: List<TagEntity>, private val listener: OnAdapterActionListener,  var currUsername: String? = null): RecyclerView.Adapter<TagAdapter.TagViewHolder>() {
 
+    interface OnAdapterActionListener{
+        fun onLikeClick(tagId: String, isLiked: Boolean)
+        fun onDeleteClick(tadId: String)
+        fun onSubscribeClick(tagId: String)
+    }
 
     class TagViewHolder(itemView: View): ViewHolder(itemView) {
         val binding = RecyclerItemBinding.bind(itemView)
@@ -23,15 +29,9 @@ class TagAdapter(private var data: List<TagEntity>): RecyclerView.Adapter<TagAda
         val countLike = binding.likeCount
         val photo = binding.image
         val author = binding.author
+        val mainLayout = binding.mainLayout
+        val additionalLayout = binding.additionalInfo
     }
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
-        TagViewHolder(
-            RecyclerItemBinding.inflate(
-                LayoutInflater.from(parent.context),
-                parent,
-                false
-            ).root)
 
     override fun onBindViewHolder(holder: TagViewHolder, position: Int) {
         holder.author.text = data[position].username
@@ -43,15 +43,37 @@ class TagAdapter(private var data: List<TagEntity>): RecyclerView.Adapter<TagAda
         else
             holder.likeButton.setImageResource(R.drawable.heart)
 
-
         Picasso.get().load(data[position].imagePath).resize(
             holder.itemView.resources.getDimensionPixelSize(R.dimen.image_size),
             holder.itemView.resources.getDimensionPixelSize(R.dimen.image_size)
         ).into(holder.photo)
 
+        holder.likeButton.setOnClickListener {
+            listener.onLikeClick(data[position].id, data[position].isLiked)
+        }
 
+        holder.deleteButton.setOnClickListener {
+            listener.onDeleteClick(data[position].id)
+        }
 
+        if (currUsername != null && currUsername == data[position].username)
+            holder.deleteButton.visibility = View.VISIBLE
+
+        holder.mainLayout.setOnClickListener{
+            if (holder.additionalLayout.visibility == View.VISIBLE)
+                holder.additionalLayout.visibility = View.GONE
+            else
+                holder.additionalLayout.visibility = View.VISIBLE
+        }
     }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
+        TagViewHolder(
+            RecyclerItemBinding.inflate(
+                LayoutInflater.from(parent.context),
+                parent,
+                false
+            ).root)
 
     override fun getItemCount() = data.size
 }

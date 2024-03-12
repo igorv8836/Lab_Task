@@ -1,17 +1,14 @@
 package com.example.lab_task.model.repository
 
 import android.content.Context
-import android.graphics.Bitmap
 import android.util.Log
 import com.example.lab_task.App
-import com.example.lab_task.R
 import com.example.lab_task.model.api.TagsWebService
 import com.example.lab_task.model.sqlite.TagEntity
 import com.example.lab_task.model.api.entities.TransmittedTag
 import com.example.lab_task.model.sqlite.TokenEntity
 import com.example.lab_task.model.sqlite.UserEntity
 import com.example.lab_task.view.MapPosition
-import com.squareup.picasso.Picasso
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -19,18 +16,19 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.withContext
-import java.io.File
-import java.io.FileOutputStream
 
 object TagRepository {
     private val api = TagsWebService
     private val database = App.dataBase.getTagDao()
     val errorMessage = MutableSharedFlow<String?>()
 
+    suspend fun getTag(tagId: String) = database.getTag(tagId)
+
     suspend fun getTags(): Flow<List<TagEntity>> {
         try {
             withContext(Dispatchers.IO) {
                 val response = api.getTags()
+                val currUser = database.getUser().first()
                 when(response.code()){
                     200 -> database.insertTags(response.body()!!.map {
                             val temp = it
@@ -45,10 +43,12 @@ object TagRepository {
         return database.getTags()
     }
 
-        suspend fun checkAuth() = flow {
-                val user: UserEntity? = database.getUser().first()
-                emit(user?.username)
-                }.flowOn(Dispatchers.IO)
+    suspend fun checkAuth() = flow {
+            val user: UserEntity? = database.getUser().first()
+            emit(user?.username)
+            }.flowOn(Dispatchers.IO)
+
+    suspend fun getCurrUser() = database.getUser()
 
     suspend fun setTokenFromLocal(){
         try {
@@ -142,9 +142,6 @@ object TagRepository {
             api.token = ""
         }
     }
-
-//    fun getPhotoPath(path: String) = "${api.url}$path"
-
     fun getStartingPos(): Flow<MapPosition>{
         return flow<MapPosition> {
             val a = App.instance.getSharedPreferences("basic", Context.MODE_PRIVATE)

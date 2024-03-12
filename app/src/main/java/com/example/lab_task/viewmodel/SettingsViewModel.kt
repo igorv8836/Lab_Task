@@ -1,14 +1,10 @@
 package com.example.lab_task.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.lab_task.model.api.TagsWebService
 import com.example.lab_task.model.repository.TagRepository
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class SettingsViewModel : ViewModel() {
     val snackbarText = MutableLiveData<String>()
