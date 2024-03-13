@@ -4,14 +4,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.RecyclerView.VISIBLE
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.example.lab_task.R
 import com.example.lab_task.databinding.RecyclerItemBinding
 import com.example.lab_task.model.sqlite.TagEntity
 import com.squareup.picasso.Picasso
 
-class TagAdapter(var data: List<TagEntity>, private val listener: OnAdapterActionListener,  var currUsername: String? = null): RecyclerView.Adapter<TagAdapter.TagViewHolder>() {
+class TagAdapter(var data: ArrayList<TagEntity>, private val listener: OnAdapterActionListener,  var currUsername: String? = null): RecyclerView.Adapter<TagAdapter.TagViewHolder>() {
 
     interface OnAdapterActionListener{
         fun onLikeClick(tagId: String, isLiked: Boolean)
@@ -66,6 +65,35 @@ class TagAdapter(var data: List<TagEntity>, private val listener: OnAdapterActio
                 holder.additionalLayout.visibility = View.VISIBLE
         }
     }
+
+    fun updateTags(updatedTags: List<TagEntity>) {
+        val iterator = data.iterator()
+
+        while (iterator.hasNext()) {
+            val existingTag = iterator.next()
+            val pos = updatedTags.indexOfFirst { it.id == existingTag.id }
+
+            if (pos == -1) {
+                val indexToRemove = data.indexOf(existingTag)
+                iterator.remove()
+                notifyItemRemoved(indexToRemove)
+            } else {
+                if (existingTag != updatedTags[pos]) {
+                    data[data.indexOf(existingTag)] = updatedTags[pos]
+                    notifyItemChanged(data.indexOf(updatedTags[pos]))
+                }
+            }
+        }
+
+        for (updatedTag in updatedTags) {
+            val pos = data.indexOfFirst { it.id == updatedTag.id }
+            if (pos == -1) {
+                data.add(updatedTag)
+                notifyItemInserted(data.size)
+            }
+        }
+    }
+
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
         TagViewHolder(

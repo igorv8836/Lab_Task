@@ -27,7 +27,8 @@ interface TagDao {
     @Query("DELETE FROM tags WHERE id = :id")
     fun deleteTag(id: String)
 
-
+    @Query("DELETE FROM tags")
+    fun clearTags()
 
     @Query("SELECT * FROM user WHERE type = 'account'")
     fun getUser(): Flow<UserEntity>

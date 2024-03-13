@@ -36,7 +36,11 @@ open class TagEntity(
         return "${lat.substring(0, min(lat.length, 9))}, ${lon.substring(0, min(lon.length, 9))}"
     }
 
-    fun getImageUrl() = "\"https://maps.rtuitlab.dev\"${imagePath}"
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is TagEntity) return false
+        return id == other.id && likes == other.likes && isLiked == other.isLiked
+    }
 }
 
 

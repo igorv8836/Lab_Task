@@ -28,14 +28,16 @@ object TagRepository {
         try {
             withContext(Dispatchers.IO) {
                 val response = api.getTags()
-                val currUser = database.getUser().first()
                 when(response.code()){
-                    200 -> database.insertTags(response.body()!!.map {
+                    200 -> {
+                        database.clearTags()
+                        database.insertTags(response.body()!!.map {
                             val temp = it
-                            temp.image.let { temp.image = api.url + temp.image }
+                            if (temp.image != null)
+                                temp.image = api.url + temp.image
                             TagEntity(temp)
                         })
-                    else -> errorMessage.emit("${response.code()}: ${response.message()}") }
+                    } else -> errorMessage.emit("${response.code()}: ${response.message()}") }
             }
         } catch (e: Exception){
             errorMessage.emit("Error: ${e.message.toString()}")

@@ -17,16 +17,6 @@
         app:layout_constraintTop_toTopOf="parent"
         android:text="Фильтры" />
 
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:clickable="true"
-        android:contentDescription="Закрыть фильтры"
-        android:focusable="true"
-        app:srcCompat="@android:drawable/ic_menu_close_clear_cancel"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <CheckBox
         android:id="@+id/with_image_checkbox"
         android:layout_width="wrap_content"
@@ -82,7 +72,7 @@
         android:layout_marginEnd="@dimen/margin_medium"
         android:layout_marginTop="@dimen/margin_medium"
         android:text="Сбросить"
-        app:layout_constraintTop_toBottomOf="@id/sort_type"
+        app:layout_constraintTop_toBottomOf="@id/with_image_checkbox"
         android:layout_width="0dp"
         android:layout_height="wrap_content"/>
 
@@ -90,7 +80,7 @@
         android:id="@+id/apply_button"
         app:layout_constraintStart_toEndOf="@id/clear_button"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/sort_type"
+        app:layout_constraintTop_toBottomOf="@id/with_image_checkbox"
         android:text="Применить"
         android:layout_marginEnd="@dimen/margin_small"
         android:layout_marginStart="@dimen/margin_medium"
@@ -98,13 +88,13 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"/>
 
-    <Spinner
-        android:id="@+id/sort_type"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/with_image_checkbox"
-        android:entries="@menu/sort_type"
-        />
+<!--    <Spinner-->
+<!--        android:id="@+id/sort_type"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toBottomOf="@id/with_image_checkbox"-->
+<!--        android:entries="@menu/sort_type"-->
+<!--        />-->
 
 </androidx.constraintlayout.widget.ConstraintLayout>

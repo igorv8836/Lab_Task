@@ -2,6 +2,7 @@ package com.example.lab_task.view.fragments
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -12,7 +13,7 @@ import com.example.lab_task.adapters.TagAdapter
 import com.example.lab_task.databinding.FragmentListBinding
 import com.example.lab_task.viewmodel.ListViewModel
 
-class ListFragment : Fragment(), TagAdapter.OnAdapterActionListener {
+class ListFragment : Fragment(), TagAdapter.OnAdapterActionListener, FiltersDataRecievedListener {
     private lateinit var binding: FragmentListBinding
     private lateinit var viewModel: ListViewModel
     private lateinit var adapter: TagAdapter
@@ -39,13 +40,16 @@ class ListFragment : Fragment(), TagAdapter.OnAdapterActionListener {
         binding.recyclerView.adapter = adapter
 
         viewModel.tagsForDisplay.observe(viewLifecycleOwner){
-            adapter.data = it
-            adapter.notifyDataSetChanged()
+            adapter.updateTags(it)
         }
 
         viewModel.currUsername.observe(viewLifecycleOwner){
             adapter.currUsername = it
             adapter.notifyDataSetChanged()
+        }
+
+        binding.sortManageButton.setOnClickListener {
+            FiltersFragment(this).show(requireFragmentManager(), "FiltersFragment")
         }
     }
 
@@ -59,6 +63,10 @@ class ListFragment : Fragment(), TagAdapter.OnAdapterActionListener {
 
     override fun onSubscribeClick(tagId: String) {
 
+    }
+
+    override fun onDataRevieved(data: FiltersData?) {
+        viewModel.applyFilters(data)
     }
 
 
