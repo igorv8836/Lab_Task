@@ -145,7 +145,7 @@ object TagRepository {
         }
     }
     fun getStartingPos(): Flow<MapPosition>{
-        return flow<MapPosition> {
+        return flow {
             val a = App.instance.getSharedPreferences("basic", Context.MODE_PRIVATE)
             with(a){
                 emit(MapPosition(
@@ -196,7 +196,7 @@ object TagRepository {
         }
     }
 
-    suspend fun checkIsAuthor(id: String) = flow<Boolean> {
+    suspend fun checkIsAuthor(id: String) = flow {
         val username = database.getUser().first()
         val tag = database.getTag(id).first()
 

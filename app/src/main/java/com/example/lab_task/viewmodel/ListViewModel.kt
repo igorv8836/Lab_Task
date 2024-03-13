@@ -6,7 +6,9 @@ import androidx.lifecycle.viewModelScope
 import com.example.lab_task.model.repository.TagRepository
 import com.example.lab_task.model.sqlite.TagEntity
 import com.example.lab_task.view.fragments.FiltersData
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class ListViewModel: ViewModel() {
     private var filters: FiltersData? = null
@@ -33,21 +35,25 @@ class ListViewModel: ViewModel() {
     }
 
     fun updateFilteredList() {
-        var temp = loadedTags
-        filters?.let { currentFilters ->
-            if (currentFilters.onlyWithPhoto) {
-                temp = temp.filter { it.imagePath != null }
+        viewModelScope.launch {
+            withContext(Dispatchers.Default){
+                var temp = loadedTags
+                filters?.let { currentFilters ->
+                    if (currentFilters.onlyWithPhoto) {
+                        temp = temp.filter { it.imagePath != null }
+                    }
+                    temp = when (currentFilters.sortType) {
+                        0 -> temp.sortedBy { it.likes }.reversed()
+                        1 -> temp.sortedBy { it.likes }
+                        2 -> temp.sortedBy { it.username }
+                        3 -> temp.sortedBy { it.username }.reversed()
+                        else -> temp
+                    }
+                    tagsForDisplay.postValue(temp)
+                } ?: run {
+                    tagsForDisplay.postValue(loadedTags)
+                }
             }
-            temp = when (currentFilters.sortType) {
-                0 -> temp.sortedBy { it.likes }.reversed()
-                1 -> temp.sortedBy { it.likes }
-                2 -> temp.sortedBy { it.username }
-                3 -> temp.sortedBy { it.username }.reversed()
-                else -> temp
-            }
-            tagsForDisplay.value = temp
-        } ?: run {
-            tagsForDisplay.value = loadedTags
         }
     }
 
@@ -55,6 +61,29 @@ class ListViewModel: ViewModel() {
     fun applyFilters(data: FiltersData?){
         filters = data
         updateFilteredList()
+    }
+
+    fun searchInText(text: String){
+        val newList = tagsForDisplay.value?.let { ArrayList(it) }
+        val filter = filters?.typeSearch ?: 0
+        newList?.iterator()?.let {
+            while (it.hasNext()){
+                val tag = it.next()
+                when (filter){
+                    0 -> {
+                        if (tag.username?.contains(text) != true && !tag.description.contains(text))
+                            it.remove()
+                    } 1 -> {
+                        if (tag.username?.contains(text) != true)
+                            it.remove()
+                    } 2 -> {
+                        if (!tag.description.contains(text))
+                            it.remove()
+                    }
+                }
+            }
+            tagsForDisplay.value = newList!!
+        }
     }
 
     fun getCurrUserId(){

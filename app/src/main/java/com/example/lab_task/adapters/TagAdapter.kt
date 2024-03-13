@@ -71,17 +71,18 @@ class TagAdapter(var data: ArrayList<TagEntity>, private val listener: OnAdapter
 
         while (iterator.hasNext()) {
             val existingTag = iterator.next()
+            val indx = data.indexOf(existingTag)
             val pos = updatedTags.indexOfFirst { it.id == existingTag.id }
 
             if (pos == -1) {
-                val indexToRemove = data.indexOf(existingTag)
                 iterator.remove()
-                notifyItemRemoved(indexToRemove)
-            } else {
-                if (existingTag != updatedTags[pos]) {
-                    data[data.indexOf(existingTag)] = updatedTags[pos]
-                    notifyItemChanged(data.indexOf(updatedTags[pos]))
-                }
+                notifyItemRemoved(indx)
+            } else if (existingTag != updatedTags[pos] && pos == indx) {
+                    data[indx] = updatedTags[pos]
+                    notifyItemChanged(indx)
+            } else{
+                data[indx] = updatedTags[pos]
+                notifyItemChanged(indx)
             }
         }
 
