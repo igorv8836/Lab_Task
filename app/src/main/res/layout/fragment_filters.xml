@@ -26,6 +26,15 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/sort_radio_group"/>
 
+    <Spinner
+        android:id="@+id/type_search_spinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/with_image_checkbox"
+        android:entries="@array/sorting_options"
+        />
+
     <RadioGroup
         android:id="@+id/sort_radio_group"
         android:layout_width="wrap_content"
@@ -72,7 +81,7 @@
         android:layout_marginEnd="@dimen/margin_medium"
         android:layout_marginTop="@dimen/margin_medium"
         android:text="Сбросить"
-        app:layout_constraintTop_toBottomOf="@id/with_image_checkbox"
+        app:layout_constraintTop_toBottomOf="@id/type_search_spinner"
         android:layout_width="0dp"
         android:layout_height="wrap_content"/>
 
@@ -80,7 +89,7 @@
         android:id="@+id/apply_button"
         app:layout_constraintStart_toEndOf="@id/clear_button"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/with_image_checkbox"
+        app:layout_constraintTop_toBottomOf="@id/type_search_spinner"
         android:text="Применить"
         android:layout_marginEnd="@dimen/margin_small"
         android:layout_marginStart="@dimen/margin_medium"

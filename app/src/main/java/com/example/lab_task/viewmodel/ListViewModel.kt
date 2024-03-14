@@ -10,9 +10,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class ListViewModel: ViewModel() {
+class ListViewModel : ViewModel() {
     private var filters: FiltersData? = null
-    private lateinit var loadedTags: List<TagEntity>
+    private var loadedTags: List<TagEntity> = emptyList()
     val repository: TagRepository = TagRepository
     val tagsForDisplay: MutableLiveData<List<TagEntity>> = MutableLiveData()
     val helpingText = MutableLiveData<String>()
@@ -24,9 +24,9 @@ class ListViewModel: ViewModel() {
         getErrorMessage()
     }
 
-    fun loadTags(){
+    private fun loadTags() {
         viewModelScope.launch {
-            repository.getTags().collect{
+            repository.getTags().collect {
                 loadedTags = it
                 getCurrUserId()
                 updateFilteredList()
@@ -34,87 +34,74 @@ class ListViewModel: ViewModel() {
         }
     }
 
-    fun updateFilteredList() {
+    private fun updateFilteredList() {
         viewModelScope.launch {
-            withContext(Dispatchers.Default){
-                var temp = loadedTags
-                filters?.let { currentFilters ->
-                    if (currentFilters.onlyWithPhoto) {
-                        temp = temp.filter { it.imagePath != null }
-                    }
-                    temp = when (currentFilters.sortType) {
-                        0 -> temp.sortedBy { it.likes }.reversed()
-                        1 -> temp.sortedBy { it.likes }
-                        2 -> temp.sortedBy { it.username }
-                        3 -> temp.sortedBy { it.username }.reversed()
-                        else -> temp
-                    }
-                    tagsForDisplay.postValue(temp)
-                } ?: run {
-                    tagsForDisplay.postValue(loadedTags)
+            val newList = loadedTags.filter { tag ->
+                val searchText = filters?.searchText.orEmpty()
+                val satisfiesSearchCriteria = when (filters?.typeSearch) {
+                    0 -> tag.username?.contains(searchText, ignoreCase = true) ?: false ||
+                            tag.description.contains(searchText, ignoreCase = true)
+                    1 -> tag.username?.contains(searchText, ignoreCase = true) ?: false
+                    2 -> tag.description.contains(searchText, ignoreCase = true)
+                    else -> true
                 }
+                satisfiesSearchCriteria && (!(filters?.onlyWithPhoto ?: false) && tag.imagePath == null || tag.imagePath != null)
             }
+
+            val sortedList = when (filters?.sortType) {
+                0 -> newList.sortedByDescending { it.likes }
+                1 -> newList.sortedBy { it.likes }
+                2 -> newList.sortedBy { it.username }
+                3 -> newList.sortedByDescending { it.username }
+                else -> newList
+            }
+
+            tagsForDisplay.postValue(sortedList)
         }
     }
 
 
-    fun applyFilters(data: FiltersData?){
+    fun applyFilters(data: FiltersData?) {
         filters = data
         updateFilteredList()
     }
 
-    fun searchInText(text: String){
-        val newList = tagsForDisplay.value?.let { ArrayList(it) }
-        val filter = filters?.typeSearch ?: 0
-        newList?.iterator()?.let {
-            while (it.hasNext()){
-                val tag = it.next()
-                when (filter){
-                    0 -> {
-                        if (tag.username?.contains(text) != true && !tag.description.contains(text))
-                            it.remove()
-                    } 1 -> {
-                        if (tag.username?.contains(text) != true)
-                            it.remove()
-                    } 2 -> {
-                        if (!tag.description.contains(text))
-                            it.remove()
-                    }
-                }
-            }
-            tagsForDisplay.value = newList!!
-        }
+    fun searchInText(text: String) {
+        if (filters == null)
+            filters = FiltersData(-1, false)
+        filters?.searchText = text
+        updateFilteredList()
     }
 
-    fun getCurrUserId(){
+    fun getCurrUserId() {
         viewModelScope.launch {
-            repository.getCurrUser().collect{
+            repository.getCurrUser().collect {
                 currUsername.postValue(it.username)
             }
         }
 
     }
 
-    fun getErrorMessage(){
+    fun getErrorMessage() {
         viewModelScope.launch {
-            repository.errorMessage.collect{
+            repository.errorMessage.collect {
                 if (it != null)
                     helpingText.postValue(it)
             }
         }
     }
 
-    fun changeLike(id: String, isLiked: Boolean){
+    fun changeLike(id: String, isLiked: Boolean) {
         viewModelScope.launch {
             if (!isLiked) {
                 repository.addLike(id)
-            }else {
+            } else {
                 repository.deleteLike(id)
             }
         }
     }
 
-    fun deleteTag(tagId: String){
+    fun deleteTag(tagId: String) {
         viewModelScope.launch {
             repository.deleteTag(tagId)
         }

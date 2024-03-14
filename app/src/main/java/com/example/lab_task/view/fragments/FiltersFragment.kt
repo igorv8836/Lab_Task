@@ -36,7 +36,13 @@ class FiltersFragment(val listener: FiltersDataRecievedListener) : BottomSheetDi
                 R.id.reverse_alphaber_sorted -> 3
                 else -> -1
             }
-            listener.onDataRevieved(FiltersData(sortType, binding.withImageCheckbox.isChecked))
+            listener.onDataRevieved(
+                FiltersData(
+                    sortType,
+                    binding.withImageCheckbox.isChecked,
+                    binding.typeSearchSpinner.selectedItemPosition
+                )
+            )
             dismiss()
         }
 

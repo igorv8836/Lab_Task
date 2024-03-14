@@ -5,6 +5,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import com.example.lab_task.model.api.entities.UserResponse
 import com.example.lab_task.model.UserAuth
 import kotlinx.coroutines.flow.Flow
@@ -20,6 +21,9 @@ interface TagDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertTag(tag: TagEntity)
+
+    @Update(onConflict = OnConflictStrategy.REPLACE)
+    fun updateTag(tag: TagEntity)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertTags(tags: List<TagEntity>)

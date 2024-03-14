@@ -1,5 +1,6 @@
 package com.example.lab_task.adapters
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -66,34 +67,49 @@ class TagAdapter(var data: ArrayList<TagEntity>, private val listener: OnAdapter
         }
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     fun updateTags(updatedTags: List<TagEntity>) {
-        val iterator = data.iterator()
-
-        while (iterator.hasNext()) {
-            val existingTag = iterator.next()
-            val indx = data.indexOf(existingTag)
-            val pos = updatedTags.indexOfFirst { it.id == existingTag.id }
-
-            if (pos == -1) {
-                iterator.remove()
-                notifyItemRemoved(indx)
-            } else if (existingTag != updatedTags[pos] && pos == indx) {
-                    data[indx] = updatedTags[pos]
-                    notifyItemChanged(indx)
-            } else{
-                data[indx] = updatedTags[pos]
-                notifyItemChanged(indx)
+        if (updatedTags.size == data.size){
+            for (i in 0 until data.size){
+                if (data[i] != updatedTags[i]){
+                    data[i] = updatedTags[i]
+                    notifyItemChanged(i)
+                }
             }
-        }
-
-        for (updatedTag in updatedTags) {
-            val pos = data.indexOfFirst { it.id == updatedTag.id }
-            if (pos == -1) {
-                data.add(updatedTag)
-                notifyItemInserted(data.size)
-            }
+        } else {
+            data = ArrayList(updatedTags)
+            notifyDataSetChanged()
         }
     }
+
+//    fun updateTags(updatedTags: List<TagEntity>) {
+//        val iterator = data.iterator()
+//
+//        while (iterator.hasNext()) {
+//            val existingTag = iterator.next()
+//            val indx = data.indexOf(existingTag)
+//            val pos = updatedTags.indexOfFirst { it.id == existingTag.id }
+//
+//            if (pos == -1) {
+//                iterator.remove()
+//                notifyItemRemoved(indx)
+//            } else if (existingTag != updatedTags[pos] && pos == indx) {
+//                    data[indx] = updatedTags[pos]
+//                    notifyItemChanged(indx)
+//            } else{
+//                data[indx] = updatedTags[pos]
+//                notifyItemChanged(indx)
+//            }
+//        }
+//
+//        for (updatedTag in updatedTags) {
+//            val pos = data.indexOfFirst { it.id == updatedTag.id }
+//            if (pos == -1) {
+//                data.add(updatedTag)
+//                notifyItemInserted(data.size)
+//            }
+//        }
+//    }
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =

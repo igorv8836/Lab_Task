@@ -4,4 +4,10 @@
     <string name="username">username</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string-array name="sorting_options">
+        <item>В имени и описанию</item>
+        <item>В имени</item>
+        <item>В описанию</item>
+    </string-array>
 </resources>

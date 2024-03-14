@@ -106,8 +106,9 @@ object TagRepository {
                     201 -> {
                         response.body()?.let { TagEntity(it) }?.let {
                             val temp = it
-                            temp.imagePath = api.url + temp.imagePath
-                            database.insertTag(temp)
+                            if (temp.imagePath != null)
+                                temp.imagePath = api.url + temp.imagePath
+                            database.updateTag(temp)
                         }
                     }
                     else -> {
@@ -127,7 +128,7 @@ object TagRepository {
                         database.getTag(tagId).first {
                             it.likes--
                             it.isLiked = !it.isLiked
-                            database.insertTag(it)
+                            database.updateTag(it)
                             true
                         }
                     }
