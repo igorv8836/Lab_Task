@@ -19,7 +19,6 @@ class MapViewModel : ViewModel() {
     val tags: MutableLiveData<List<TagEntity>> = MutableLiveData()
     val openedTag: MutableLiveData<TagEntity> = MutableLiveData()
     val photoForNewTag: MutableLiveData<File?> = MutableLiveData()
-//    val photoPathForOpenTag: MutableLiveData<String?> = MutableLiveData()
     val showDeleteButton: MutableLiveData<Boolean> = MutableLiveData()
     val showSubscribeButton: MutableLiveData<Boolean> = MutableLiveData()
 

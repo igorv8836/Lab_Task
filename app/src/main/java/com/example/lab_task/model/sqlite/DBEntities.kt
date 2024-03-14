@@ -58,3 +58,9 @@ data class TokenEntity(
         userToken.token_type
     )
 }
+
+@Entity(tableName = "subscriptions")
+data class Subscription(
+    @PrimaryKey val user_id: String,
+    val last_tags: String? = null
+)

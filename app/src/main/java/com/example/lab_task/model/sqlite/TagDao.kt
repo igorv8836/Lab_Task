@@ -51,4 +51,16 @@ interface TagDao {
 
     @Query("DELETE FROM tokens WHERE type = 'auth_token'")
     fun deleteToken()
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun addSubscription(data: Subscription)
+
+    @Delete
+    fun deleteSubscription(data: Subscription)
+
+    @Query("SELECT * FROM subscriptions")
+    fun getSubscriptions(): List<Subscription>
+
+    @Query("SELECT * FROM subscriptions WHERE user_id = :user_id")
+    fun getSubscription(user_id: String): Subscription
 }

@@ -1,8 +1,13 @@
 package com.example.lab_task.view
 
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.provider.MediaStore
 import android.view.MenuItem
+import androidx.core.content.ContextCompat
 import androidx.navigation.fragment.findNavController
 import com.example.lab_task.BuildConfig
 import com.example.lab_task.R
@@ -60,6 +65,20 @@ class MainActivity : AppCompatActivity() {
         }
         )
 
+        checkPermission()
+
+    }
+
+    private fun checkPermission() {
+        if (Build.VERSION.SDK_INT >= 33){
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    android.Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                requestPermissions(arrayOf(android.Manifest.permission.POST_NOTIFICATIONS), 0)
+            }
+        }
     }
 
     override fun onStart() {

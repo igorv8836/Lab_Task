@@ -6,6 +6,7 @@ import com.example.lab_task.App
 import com.example.lab_task.model.api.TagsWebService
 import com.example.lab_task.model.sqlite.TagEntity
 import com.example.lab_task.model.api.entities.TransmittedTag
+import com.example.lab_task.model.sqlite.Subscription
 import com.example.lab_task.model.sqlite.TokenEntity
 import com.example.lab_task.model.sqlite.UserEntity
 import com.example.lab_task.view.MapPosition
@@ -207,4 +208,16 @@ object TagRepository {
             emit(username.username == tag.username)
         }
     }.flowOn(Dispatchers.IO)
+
+    suspend fun addSubscription(data: Subscription){
+        database.addSubscription(data)
+    }
+
+    suspend fun deleteSubscription(data: Subscription){
+        database.deleteSubscription(data)
+    }
+
+    suspend fun getSubscription(user_id: String) = database.getSubscription(user_id)
+
+    suspend fun getSubscriptions() = database.getSubscriptions()
 }
