@@ -16,7 +16,7 @@ class TagAdapter(var data: ArrayList<TagEntity>, private val listener: OnAdapter
     interface OnAdapterActionListener{
         fun onLikeClick(tagId: String, isLiked: Boolean)
         fun onDeleteClick(tadId: String)
-        fun onSubscribeClick(tagId: String)
+        fun onSubscribeClick(userId: String, isSubscribed: Boolean)
     }
 
     class TagViewHolder(itemView: View): ViewHolder(itemView) {
@@ -38,6 +38,7 @@ class TagAdapter(var data: ArrayList<TagEntity>, private val listener: OnAdapter
         holder.description.text = data[position].description
         holder.coordText.text = data[position].getFormatCoord()
         holder.countLike.text = data[position].likes.toString()
+        holder.deleteButton.visibility = View.GONE
         if (data[position].isLiked)
             holder.likeButton.setImageResource(R.drawable.red_heart)
         else
@@ -55,9 +56,23 @@ class TagAdapter(var data: ArrayList<TagEntity>, private val listener: OnAdapter
         holder.deleteButton.setOnClickListener {
             listener.onDeleteClick(data[position].id)
         }
+        holder.subscribeButton.setOnClickListener {
+            data[position].userId?.let {
+                listener.onSubscribeClick(it, (data[position] as SubscribedTag).isSubscribed)
+            }
+        }
 
         if (currUsername != null && currUsername == data[position].username)
             holder.deleteButton.visibility = View.VISIBLE
+
+        holder.subscribeButton.visibility = if (data[position].userId != null)
+            View.VISIBLE
+        else
+            View.GONE
+        holder.subscribeButton.text = if ((data[position] as SubscribedTag).isSubscribed)
+            "Отписаться"
+        else
+            "Подписаться"
 
         holder.mainLayout.setOnClickListener{
             if (holder.additionalLayout.visibility == View.VISIBLE)
@@ -71,7 +86,8 @@ class TagAdapter(var data: ArrayList<TagEntity>, private val listener: OnAdapter
     fun updateTags(updatedTags: List<TagEntity>) {
         if (updatedTags.size == data.size){
             for (i in 0 until data.size){
-                if (data[i] != updatedTags[i]){
+                val a = (data[i] as SubscribedTag).isSubscribed != (updatedTags[i] as SubscribedTag).isSubscribed
+                if (data[i] != updatedTags[i] || a){
                     data[i] = updatedTags[i]
                     notifyItemChanged(i)
                 }
@@ -81,36 +97,6 @@ class TagAdapter(var data: ArrayList<TagEntity>, private val listener: OnAdapter
             notifyDataSetChanged()
         }
     }
-
-//    fun updateTags(updatedTags: List<TagEntity>) {
-//        val iterator = data.iterator()
-//
-//        while (iterator.hasNext()) {
-//            val existingTag = iterator.next()
-//            val indx = data.indexOf(existingTag)
-//            val pos = updatedTags.indexOfFirst { it.id == existingTag.id }
-//
-//            if (pos == -1) {
-//                iterator.remove()
-//                notifyItemRemoved(indx)
-//            } else if (existingTag != updatedTags[pos] && pos == indx) {
-//                    data[indx] = updatedTags[pos]
-//                    notifyItemChanged(indx)
-//            } else{
-//                data[indx] = updatedTags[pos]
-//                notifyItemChanged(indx)
-//            }
-//        }
-//
-//        for (updatedTag in updatedTags) {
-//            val pos = data.indexOfFirst { it.id == updatedTag.id }
-//            if (pos == -1) {
-//                data.add(updatedTag)
-//                notifyItemInserted(data.size)
-//            }
-//        }
-//    }
-
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
         TagViewHolder(

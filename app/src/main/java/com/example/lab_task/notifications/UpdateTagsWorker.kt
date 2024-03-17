@@ -11,7 +11,6 @@ import androidx.work.WorkerParameters
 import com.example.lab_task.model.repository.TagRepository
 import com.example.lab_task.model.sqlite.TagEntity
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.forEach
 import java.util.concurrent.TimeUnit
 
 class UpdateTagsWorker(context: Context, params: WorkerParameters) : CoroutineWorker(context, params) {
@@ -19,29 +18,29 @@ class UpdateTagsWorker(context: Context, params: WorkerParameters) : CoroutineWo
 
     override suspend fun doWork(): Result {
         try {
-            val newTags = repository.getTags().first()
-            val subs = repository.getSubscriptions()
-
-            val lastTagsMap = mutableMapOf<String, List<TagEntity>>()
-
-            subs.forEach { subscription ->
-                val lastTags = subscription.last_tags?.split(",")?.mapNotNull { tagId ->
-                    repository.getTag(tagId)
-                }
-                if (lastTags != null) {
-                    lastTagsMap[subscription.user_id] = lastTags
-                }
-            }
-
-            newTags.forEach { newTag ->
-                subs.forEach { subscription ->
-                    val lastTags = lastTagsMap[subscription.user_id]
-                    if (lastTags != null && newTag !in lastTags) {
-                        Log.i("Notification", "New tag found for user ${subscription.user_id}: ${newTag.id}")
-                    }
-                }
-            }
-            //NotificationUtils.showNotification(applicationContext, "Title", "Message")
+//            val newTags = repository.getTags().first()
+//            val subs = repository.getSubscriptions()
+//
+//            val lastTagsMap = mutableMapOf<String, List<TagEntity>>()
+//
+//            subs.forEach { subscription ->
+//                val lastTags = subscription.last_tags?.split(",")?.mapNotNull { tagId ->
+//                    repository.getTag(tagId).first()
+//                }
+//                if (lastTags != null) {
+//                    lastTagsMap[subscription.user_id] = lastTags
+//                }
+//            }
+//
+//            newTags.forEach { newTag ->
+//                subs.forEach { subscription ->
+//                    val lastTags = lastTagsMap[subscription.user_id]
+//                    if (lastTags != null && newTag !in lastTags) {
+//                        NotificationUtils.showNotification(applicationContext, "Новая метка", "Пользователь ${subscription.user_id} опубликовал новую метку")
+//                        Log.i("Notification", "New tag found for user ${subscription.user_id}: ${newTag.id}")
+//                    }
+//                }
+//            }
         } catch (e: Exception) {
             Log.i("notification", e.message.toString())
             return Result.failure()

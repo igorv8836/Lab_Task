@@ -35,7 +35,7 @@ interface TagDao {
     fun clearTags()
 
     @Query("SELECT * FROM user WHERE type = 'account'")
-    fun getUser(): Flow<UserEntity>
+    fun getUser(): Flow<UserEntity?>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertUser(tag: UserEntity)
@@ -44,7 +44,7 @@ interface TagDao {
     fun deleteUser()
 
     @Query("SELECT * FROM tokens WHERE type = 'auth_token'")
-    fun getToken(): TokenEntity
+    fun getToken(): TokenEntity?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertToken(tag: TokenEntity)
@@ -59,8 +59,8 @@ interface TagDao {
     fun deleteSubscription(data: Subscription)
 
     @Query("SELECT * FROM subscriptions")
-    fun getSubscriptions(): List<Subscription>
+    fun getSubscriptions(): Flow<List<Subscription>>
 
     @Query("SELECT * FROM subscriptions WHERE user_id = :user_id")
-    fun getSubscription(user_id: String): Subscription
+    fun getSubscription(user_id: String): Flow<Subscription?>
 }

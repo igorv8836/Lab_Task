@@ -3,10 +3,13 @@ package com.example.lab_task.viewmodel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.lab_task.adapters.SubscribedTag
 import com.example.lab_task.model.repository.TagRepository
+import com.example.lab_task.model.sqlite.Subscription
 import com.example.lab_task.model.sqlite.TagEntity
 import com.example.lab_task.view.fragments.FiltersData
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -17,18 +20,24 @@ class ListViewModel : ViewModel() {
     val tagsForDisplay: MutableLiveData<List<TagEntity>> = MutableLiveData()
     val helpingText = MutableLiveData<String>()
     val photoPathForOpenTag = MutableLiveData<String>()
-    val currUsername = MutableLiveData<String>()
+    val currUsername = MutableLiveData<String?>()
 
     init {
         loadTags()
+        getCurrUserId()
         getErrorMessage()
     }
 
     private fun loadTags() {
-        viewModelScope.launch {
-            repository.getTags().collect {
-                loadedTags = it
-                getCurrUserId()
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.getTags().collect{
+                val newList = ArrayList<TagEntity>()
+                val subs = repository.getSubscriptions().first()
+                for (i in it.indices){
+                    val sub = subs.firstOrNull { it1 -> it1.user_id == it[i].userId }
+                    newList.add(SubscribedTag(it[i], sub != null))
+                }
+                loadedTags = newList
                 updateFilteredList()
             }
         }
@@ -60,6 +69,14 @@ class ListViewModel : ViewModel() {
         }
     }
 
+    fun subscribeButton(userId: String, isSubscribed: Boolean){
+        viewModelScope.launch(Dispatchers.IO) {
+            if (!isSubscribed)
+                repository.addSubscription(Subscription(userId))
+            else
+                repository.deleteSubscription(Subscription(userId))
+        }
+    }
 
     fun applyFilters(data: FiltersData?) {
         filters = data
@@ -76,7 +93,7 @@ class ListViewModel : ViewModel() {
     fun getCurrUserId() {
         viewModelScope.launch {
             repository.getCurrUser().collect {
-                currUsername.postValue(it.username)
+                currUsername.postValue(it?.username)
             }
         }
 

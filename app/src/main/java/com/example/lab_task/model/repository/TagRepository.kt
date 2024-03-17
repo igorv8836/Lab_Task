@@ -151,8 +151,8 @@ object TagRepository {
             val a = App.instance.getSharedPreferences("basic", Context.MODE_PRIVATE)
             with(a){
                 emit(MapPosition(
-                    getFloat("latitude", 55.0f).toDouble(),
-                    getFloat("longitude", 37.0f).toDouble(),
+                    getFloat("latitude", 54.0f).toDouble(),
+                    getFloat("longitude", 38.0f).toDouble(),
                     getFloat("zoom", 17.0f).toDouble(),
                     getFloat("azimuth", 0.0f).toDouble(),
                     getFloat("tilt", 0.0f).toDouble()

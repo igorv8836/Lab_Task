@@ -9,6 +9,7 @@ import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import okhttp3.MediaType
 import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
@@ -25,11 +26,12 @@ object TagsWebService {
     }
 
     suspend fun addTag(data: TransmittedTag): Response<TagResponse> {
+        val desc = RequestBody.create(MediaType.parse("text/plain"), data.description)
         if (data.image == null)
-            return api.addTag(data.latitude, data.longitude, data.description, null, getBearerToken())
+            return api.addTag(data.latitude, data.longitude, desc, null, getBearerToken())
         val requestBody = MultipartBody.create(MediaType.parse("multipart/form-data"), data.image)
         val photo = MultipartBody.Part.createFormData("image", data.image.name, requestBody)
-        return api.addTag(data.latitude, data.longitude, data.description, photo, getBearerToken())
+        return api.addTag(data.latitude, data.longitude, desc, photo, getBearerToken())
     }
 
     suspend fun deleteTag(id: String): Response<String> {

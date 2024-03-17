@@ -7,12 +7,24 @@
     android:padding="@dimen/margin_small"
     tools:context=".view.fragments.FiltersFragment">
 
+    <View
+        android:layout_width="100dp"
+        android:layout_height="3dp"
+        android:layout_gravity="center"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="@dimen/margin_medium"
+        android:background="@android:color/darker_gray"
+        />
+
     <TextView
         android:id="@+id/desc_text"
         android:textSize="@dimen/text_size_large"
         android:textStyle="bold"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/margin_medium"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         android:text="Фильтры" />
@@ -26,11 +38,23 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/sort_radio_group"/>
 
+    <TextView
+        android:id="@+id/spinner_text"
+        app:layout_constraintStart_toStartOf="parent"
+        android:textSize="@dimen/text_size_medium"
+        android:textColor="@color/black"
+        app:layout_constraintTop_toBottomOf="@id/with_image_checkbox"
+        app:layout_constraintBottom_toBottomOf="@id/type_search_spinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Поиск в:"/>
+
+
     <Spinner
         android:id="@+id/type_search_spinner"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@id/spinner_text"
         app:layout_constraintTop_toBottomOf="@id/with_image_checkbox"
         android:entries="@array/sorting_options"
         />

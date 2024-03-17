@@ -1,20 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/tag_info"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/tag_info"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="@dimen/margin_small"
     android:background="@drawable/round_tag_background"
-    android:layout_margin="@dimen/margin_medium"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:paddingStart="@dimen/margin_small"
+    android:paddingEnd="@dimen/margin_small"
+    android:paddingBottom="@dimen/margin_small"
+    tools:context=".view.fragments.TagInfoFragment"
+    android:orientation="vertical">
+
+    <View
+        android:layout_width="100dp"
+        android:layout_height="3dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="@dimen/margin_medium"
+        android:background="@android:color/darker_gray"
+        />
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/main_layout"
-        android:layout_gravity="top"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_gravity="top">
 
         <TextView
             android:id="@+id/description"
@@ -87,38 +97,29 @@
             app:layout_constraintGuide_percent="0.8" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <LinearLayout
-        android:id="@+id/additional_info"
-        android:orientation="vertical"
-        android:visibility="gone"
-        tools:visibility="visible"
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/delete_button"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/margin_small"
+        android:backgroundTint="@color/red"
+        android:text="Удалить"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/image"
+        tools:visibility="visible" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/delete_button"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/image"
-            android:layout_marginTop="@dimen/margin_small"
-            android:backgroundTint="@color/red"
-            android:text="Удалить"
-            android:visibility="gone"
-            tools:visibility="visible"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/subscribe_button"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/image"
-            android:layout_marginTop="@dimen/margin_small"
-            android:text="Подписаться на автора"
-            android:visibility="gone"
-            tools:visibility="visible"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
-    </LinearLayout>
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/subscribe_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/margin_small"
+        android:visibility="gone"
+        android:text="Подписаться на автора"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/image"
+        tools:visibility="visible" />
 
 </LinearLayout>

@@ -8,7 +8,8 @@ import androidx.room.RoomDatabase
     entities = [
         TagEntity::class,
         TokenEntity::class,
-        UserEntity::class
+        UserEntity::class,
+        Subscription::class
     ]
 )
 abstract class TagDatabase : RoomDatabase() {

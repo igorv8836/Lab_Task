@@ -54,10 +54,6 @@ class MapViewModel : ViewModel() {
         }
     }
 
-//    fun getPhotoPath(path: String){
-//        photoPathForOpenTag.value = repository.getPhotoPath(path)
-//    }
-
     fun getTags(){
         viewModelScope.launch{
             repository.getTags().collect{

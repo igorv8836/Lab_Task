@@ -111,14 +111,6 @@ class MapFragment : Fragment() {
             helpingText.observe(viewLifecycleOwner) {
                 Snackbar.make(binding.root, it, Snackbar.LENGTH_SHORT).show()
             }
-
-//            photoPathForOpenTag.observe(viewLifecycleOwner) {
-//                Picasso.get().load(it).resize(
-//                    resources.getDimensionPixelSize(R.dimen.image_size),
-//                    resources.getDimensionPixelSize(R.dimen.image_size)
-//                ).centerCrop().into(binding.tagInfoLayout.image)
-//            }
-
             showDeleteButton.observe(viewLifecycleOwner){
                 binding.tagInfoLayout.deleteButton.visibility = if (it) View.VISIBLE else View.GONE
             }
@@ -129,6 +121,8 @@ class MapFragment : Fragment() {
     }
 
     private fun createNewTagCustomDialog() {
+        userPlacemark?.isVisible = false
+        binding.newTagButtonFrame.visibility = View.GONE
         val bindingDialog = NewTagDialogBinding.inflate(LayoutInflater.from(requireContext()))
         bindingDialog.addPhotoButton.setOnClickListener { pickPhoto() }
         viewModel.photoForNewTag.observe(viewLifecycleOwner) {
@@ -187,52 +181,14 @@ class MapFragment : Fragment() {
 
 
     private val placemarkTapListener = MapObjectTapListener { obj, t ->
-        viewModel.openTagInfoFrame(obj.userData.toString())
-
         binding.newTagButtonFrame.visibility = View.GONE
-        binding.tagInfoFrame.visibility = View.VISIBLE
-        binding.tagInfoLayout.image.setImageBitmap(null)
-        userPlacemark?.isVisible = false
-//        binding.tagInfoLayout.deleteButton.visibility = View.GONE
-//        binding.tagInfoLayout.subscribeButton.visibility = View.GONE
-
-        viewModel.openedTag.observe(viewLifecycleOwner) {
-            if (it == null){
-                binding.tagInfoFrame.visibility = View.GONE
-                return@observe
-            }
-
-            Picasso.get().load(it.imagePath).resize(
-                resources.getDimensionPixelSize(R.dimen.image_size),
-                resources.getDimensionPixelSize(R.dimen.image_size)
-            ).centerCrop().into(binding.tagInfoLayout.image)
-
-            with(binding.tagInfoLayout) {
-                description.text = it.description
-                coordinates.text = it.getFormatCoord()
-                author.text = (("Автор: " + (it.username ?: "-")))
-                likeCount.text = it.likes.toString()
-                if (it.isLiked)
-                    like.setImageResource(R.drawable.red_heart)
-                else
-                    like.setImageResource(R.drawable.heart)
-                binding.tagInfoFrame.visibility = View.VISIBLE
-//                viewModel.getPhotoPath(it.imagePath ?: "")
-
-                like.setOnClickListener { _ -> viewModel.changeLike(it.id) }
-                deleteButton.setOnClickListener { _ ->
-                    AlertDialog.Builder(requireContext())
-                    .setTitle("Удаление метки")
-                    .setMessage("Вы действительно хотите удалить метку?")
-                    .setPositiveButton("Удалить"){ _, _ ->
-                        viewModel.deleteTag(it.id)
-                    }.setNegativeButton("Отменить"){ dialog, _ ->
-                        dialog.dismiss()
-                    }.create().show()
-                }
-
-            }
-        }
+        val bundle = Bundle()
+        bundle.putString("tag_id", obj.userData.toString())
+        val fragment = TagInfoFragment()
+        fragment.arguments = bundle
+        fragment.show(requireFragmentManager(), "tag_info_fragment")
+        if (userPlacemark?.isValid == true)
+            userPlacemark?.isVisible = false
         true
     }
 

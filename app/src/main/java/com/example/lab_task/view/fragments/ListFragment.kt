@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -71,8 +70,8 @@ class ListFragment : Fragment(), TagAdapter.OnAdapterActionListener, FiltersData
         viewModel.deleteTag(tadId)
     }
 
-    override fun onSubscribeClick(tagId: String) {
-
+    override fun onSubscribeClick(userId: String, isSubscribed: Boolean) {
+        viewModel.subscribeButton(userId, isSubscribed)
     }
 
     override fun onDataRevieved(data: FiltersData?) {
