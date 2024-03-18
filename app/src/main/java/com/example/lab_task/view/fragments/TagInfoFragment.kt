@@ -6,12 +6,14 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.example.lab_task.R
 import com.example.lab_task.databinding.FragmentTagInfoBinding
 import com.example.lab_task.viewmodel.TagInfoViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.google.android.material.snackbar.Snackbar
 import com.squareup.picasso.Picasso
 
 
@@ -67,14 +69,12 @@ class TagInfoFragment : BottomSheetDialogFragment() {
                 binding.subscribeButton.visibility = View.VISIBLE
                 if (it) {
                     binding.subscribeButton.text = "Отписаться"
-                    binding.subscribeButton.backgroundTintList =
-                        ContextCompat.getColorStateList(requireContext(), R.color.red)
-                } else {
+                } else
                     binding.subscribeButton.text = "Подписаться"
-                    binding.subscribeButton.backgroundTintList =
-                        ContextCompat.getColorStateList(requireContext(), R.color.black)
-                }
+            }
 
+            helpingText.observe(viewLifecycleOwner){
+                Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
             }
         }
 

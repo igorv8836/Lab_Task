@@ -1,4 +1,4 @@
-package com.example.lab_task.notifications
+package com.example.lab_task.notification
 
 import android.Manifest
 import android.app.NotificationChannel

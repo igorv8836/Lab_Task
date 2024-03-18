@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
+import android.graphics.PointF
 import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.os.Build
@@ -17,13 +18,13 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmapOrNull
 import com.example.lab_task.R
 import com.example.lab_task.databinding.FragmentMapBinding
 import com.example.lab_task.databinding.NewTagDialogBinding
 import com.example.lab_task.viewmodel.MapViewModel
-import com.google.android.material.snackbar.Snackbar
 import com.squareup.picasso.Picasso
 import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.map.CameraPosition
@@ -33,10 +34,10 @@ import com.yandex.mapkit.map.Map
 import com.yandex.mapkit.map.MapObjectTapListener
 import com.yandex.mapkit.map.PlacemarkMapObject
 import com.example.lab_task.view.ClusterView
-import com.example.lab_task.view.MapPosition
-import com.example.lab_task.view.PlacemarkType
-import com.yandex.mapkit.MapKitFactory
+import com.example.lab_task.model.other.MapPosition
+import com.example.lab_task.model.other.PlacemarkType
 import com.yandex.mapkit.map.ClusterizedPlacemarkCollection
+import com.yandex.mapkit.map.IconStyle
 import com.yandex.runtime.image.ImageProvider
 import com.yandex.runtime.ui_view.ViewProvider
 import java.io.FileOutputStream
@@ -89,12 +90,13 @@ class MapFragment : Fragment() {
                 for (i in it) {
                     clusterizedCollection.addPlacemark().apply {
                         geometry = Point(i.latitude, i.longitude)
-                        setText(i.description)
                         userData = i.id
-                        setIcon(ImageProvider.fromResource(requireContext(), R.drawable.placemark))
+                        setIcon(
+                            ImageProvider.fromResource(requireContext(), R.drawable.placemark),
+                            IconStyle().setAnchor(PointF(0.5f, 1f))
+                        )
                         addTapListener(placemarkTapListener)
                     }
-                    1
                 }
                 clusterizedCollection.clusterPlacemarks(60.0, 15)
             }
@@ -111,7 +113,7 @@ class MapFragment : Fragment() {
             }
 
             helpingText.observe(viewLifecycleOwner) {
-                Snackbar.make(binding.root, it, Snackbar.LENGTH_SHORT).show()
+                Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -152,7 +154,8 @@ class MapFragment : Fragment() {
                         ImageProvider.fromResource(
                             requireContext(),
                             R.drawable.white_placemark
-                        )
+                        ),
+                        IconStyle().setAnchor(PointF(0.5f, 1f))
                     )
                 }
                 Log.i("ll1", userPlacemark?.isValid.toString())

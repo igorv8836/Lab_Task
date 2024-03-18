@@ -24,13 +24,10 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        android:paddingTop="@dimen/margin_small"
-        android:paddingBottom="@dimen/margin_small"
         android:layout_weight="0"
         app:menu="@menu/bottom_nav_menu"
         app:labelVisibilityMode="selected"
         app:itemIconSize="34dp"
-        android:layout_alignParentBottom="true"
         />
 
 </LinearLayout>

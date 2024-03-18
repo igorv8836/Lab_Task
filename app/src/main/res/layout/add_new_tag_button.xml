@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/new_tag_button_layout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -10,7 +11,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:text="Добавить новую метку"
+        android:text="@string/add_new_tag"
         android:background="@drawable/close_button_backbround"
         android:layout_marginStart="@dimen/margin_small"
         android:layout_marginEnd="@dimen/margin_small"
@@ -20,13 +21,15 @@
 
     <ImageView
         android:id="@+id/close_button"
-        android:layout_width="44dp"
-        android:layout_height="44dp"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:clickable="true"
         android:elevation="3dp"
         app:layout_constraintStart_toStartOf="@id/add_tag_button"
         app:layout_constraintBottom_toBottomOf="@id/add_tag_button"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@android:drawable/ic_menu_close_clear_cancel" />
+        app:srcCompat="@android:drawable/ic_menu_close_clear_cancel"
+        android:focusable="true"
+        tools:ignore="ContentDescription" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

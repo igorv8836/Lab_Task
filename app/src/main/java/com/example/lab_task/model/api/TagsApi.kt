@@ -3,7 +3,7 @@ package com.example.lab_task.model.api
 import com.example.lab_task.model.api.entities.RegisterUser
 import com.example.lab_task.model.api.entities.TagResponse
 import com.example.lab_task.model.api.entities.UserResponse
-import com.example.lab_task.model.UserAuth
+import com.example.lab_task.model.sqlite.UserAuth
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response

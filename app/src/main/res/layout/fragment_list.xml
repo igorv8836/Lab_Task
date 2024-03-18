@@ -15,7 +15,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@id/recycler_view"
         app:endIconMode="clear_text"
-        android:hint="Поиск меток"
+        android:hint="@string/search_tags"
         android:layout_marginStart="@dimen/margin_medium"
         android:layout_marginEnd="@dimen/margin_medium"
         android:layout_marginTop="@dimen/margin_medium"

@@ -3,8 +3,8 @@ package com.example.lab_task
 import android.app.Application
 import androidx.room.Room
 import com.example.lab_task.model.sqlite.TagDatabase
-import com.example.lab_task.notifications.NotificationUtils
-import com.example.lab_task.notifications.setupWorkManager
+import com.example.lab_task.notification.NotificationUtils
+import com.example.lab_task.notification.setupWorkManager
 
 class App: Application() {
     companion object{

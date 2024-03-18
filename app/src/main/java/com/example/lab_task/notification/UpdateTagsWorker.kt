@@ -1,4 +1,4 @@
-package com.example.lab_task.notifications
+package com.example.lab_task.notification
 
 import android.content.Context
 import android.util.Log
@@ -57,8 +57,8 @@ fun setupWorkManager(context: Context) {
         .build()
 
     val workRequest = PeriodicWorkRequestBuilder<UpdateTagsWorker>(
-        repeatInterval = 24,
-        repeatIntervalTimeUnit = TimeUnit.SECONDS
+        repeatInterval = 15,
+        repeatIntervalTimeUnit = TimeUnit.MINUTES
     ).setConstraints(constraints)
         .addTag(TAG)
         .build()

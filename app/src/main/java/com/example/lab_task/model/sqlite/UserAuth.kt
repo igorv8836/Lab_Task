@@ -1,4 +1,4 @@
-package com.example.lab_task.model
+package com.example.lab_task.model.sqlite
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

@@ -1,13 +1,13 @@
 package com.example.lab_task.view.fragments
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.DialogFragment
 import com.example.lab_task.R
 import com.example.lab_task.databinding.FragmentFiltersBinding
+import com.example.lab_task.model.other.FiltersData
+import com.example.lab_task.model.other.FiltersDataRecievedListener
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
 class FiltersFragment(val listener: FiltersDataRecievedListener) : BottomSheetDialogFragment() {

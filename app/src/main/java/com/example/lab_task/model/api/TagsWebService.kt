@@ -4,7 +4,7 @@ import com.example.lab_task.model.api.entities.RegisterUser
 import com.example.lab_task.model.api.entities.TagResponse
 import com.example.lab_task.model.api.entities.TransmittedTag
 import com.example.lab_task.model.api.entities.UserResponse
-import com.example.lab_task.model.UserAuth
+import com.example.lab_task.model.sqlite.UserAuth
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import okhttp3.MediaType

@@ -6,8 +6,6 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
-import com.example.lab_task.model.api.entities.UserResponse
-import com.example.lab_task.model.UserAuth
 import kotlinx.coroutines.flow.Flow
 
 @Dao

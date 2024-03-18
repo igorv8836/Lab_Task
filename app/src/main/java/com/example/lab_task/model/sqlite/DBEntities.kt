@@ -2,7 +2,6 @@ package com.example.lab_task.model.sqlite
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.example.lab_task.model.UserAuth
 import com.example.lab_task.model.api.entities.TagResponse
 import kotlin.math.min
 
@@ -49,7 +48,7 @@ data class UserEntity(val id: String, val username: String, @PrimaryKey val type
 
 @Entity(tableName = "tokens")
 data class TokenEntity(
-    val access_token: String,
+    var access_token: String,
     val token_type: String,
     @PrimaryKey val type: String = "auth_token"
 ){

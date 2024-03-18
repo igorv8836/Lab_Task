@@ -1,4 +1,4 @@
-package com.example.lab_task.view.fragments
+package com.example.lab_task.model.other
 
 data class FiltersData(
     val sortType: Int,

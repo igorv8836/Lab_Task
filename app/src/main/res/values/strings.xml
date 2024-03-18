@@ -4,6 +4,28 @@
     <string name="username">username</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="add_new_tag">Добавить новую метку</string>
+    <string name="enter_nickname">Введите никнейм</string>
+    <string name="filters">Фильтры</string>
+    <string name="show_only_with_photo">Показывать только с фото</string>
+    <string name="search_in">Поиск в:</string>
+    <string name="decrease_likes">По убыванию лайков</string>
+    <string name="increase_likes">По возрастанию лайков</string>
+    <string name="increase_authors">По алфавиту авторов</string>
+    <string name="decrease_authors">По обратному алфавиту авторов</string>
+    <string name="revert">Сбросить</string>
+    <string name="apply">Применить</string>
+    <string name="search_tags">Поиск меток</string>
+    <string name="delete">Удалить</string>
+    <string name="subscribe_to_author">Подписаться на автора</string>
+    <string name="description">Описание</string>
+    <string name="coordinates">Координаты</string>
+    <string name="author">Автор:</string>
+    <string name="_0">0</string>
+    <string name="not_auth">Не авторизован</string>
+    <string name="register">Зарегистироваться</string>
+    <string name="login">Войти</string>
+    <string name="log_out">Выйти</string>
 
     <string-array name="sorting_options">
         <item>В имени и описании</item>

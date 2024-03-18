@@ -15,11 +15,22 @@ class TagInfoViewModel: ViewModel() {
     private val repository = TagRepository
     val tag = MutableLiveData<TagEntity?>()
     val showDeleteButton = MutableLiveData<Boolean>()
+    val helpingText = MutableLiveData<String>()
     private var currUser: String? = null
     var isSubscribed = MutableLiveData<Boolean>()
 
     init {
         getUser()
+        getErrorMessage()
+    }
+
+    private fun getErrorMessage(){
+        viewModelScope.launch {
+            repository.errorMessage.collect{
+                if (it != null)
+                    helpingText.postValue(it)
+            }
+        }
     }
 
 

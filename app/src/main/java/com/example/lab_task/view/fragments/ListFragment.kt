@@ -8,10 +8,13 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.lab_task.adapters.TagAdapter
 import com.example.lab_task.databinding.FragmentListBinding
+import com.example.lab_task.model.other.FiltersData
+import com.example.lab_task.model.other.FiltersDataRecievedListener
 import com.example.lab_task.viewmodel.ListViewModel
 
 class ListFragment : Fragment(), TagAdapter.OnAdapterActionListener, FiltersDataRecievedListener {
@@ -49,6 +52,10 @@ class ListFragment : Fragment(), TagAdapter.OnAdapterActionListener, FiltersData
             adapter.notifyDataSetChanged()
         }
 
+        viewModel.helpingText.observe(viewLifecycleOwner){
+            Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+        }
+
         binding.sortManageButton.setOnClickListener {
             FiltersFragment(this).show(requireFragmentManager(), "FiltersFragment")
         }
@@ -75,6 +82,7 @@ class ListFragment : Fragment(), TagAdapter.OnAdapterActionListener, FiltersData
     }
 
     override fun onDataRevieved(data: FiltersData?) {
+        data?.searchText = binding.searchEditTextInputText.text.toString()
         viewModel.applyFilters(data)
     }
 

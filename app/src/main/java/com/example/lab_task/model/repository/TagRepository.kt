@@ -3,13 +3,16 @@ package com.example.lab_task.model.repository
 import android.content.Context
 import android.util.Log
 import com.example.lab_task.App
+import com.example.lab_task.model.other.ChangeChecker
 import com.example.lab_task.model.api.TagsWebService
 import com.example.lab_task.model.sqlite.TagEntity
 import com.example.lab_task.model.api.entities.TransmittedTag
+import com.example.lab_task.model.other.TokenEncryption.decryptToken
+import com.example.lab_task.model.other.TokenEncryption.encryptToken
 import com.example.lab_task.model.sqlite.Subscription
 import com.example.lab_task.model.sqlite.TokenEntity
 import com.example.lab_task.model.sqlite.UserEntity
-import com.example.lab_task.view.MapPosition
+import com.example.lab_task.model.other.MapPosition
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -56,8 +59,9 @@ object TagRepository {
         try {
             withContext(Dispatchers.IO) {
                 val tk = database.getToken()
-                if (tk != null)
-                    api.token = tk.access_token
+                if (tk != null) {
+                    api.token = decryptToken(tk.access_token)
+                }
             }
         } catch (e: Exception){
             errorMessage.emit("Error: ${e.message.toString()}")
@@ -84,7 +88,10 @@ object TagRepository {
                 val response = api.auth(username, password)
                 when (response.code()) {
                     200 -> {
-                        response.body()?.let { TokenEntity(it) }?.let { database.insertToken(it) }
+                        response.body()?.let { TokenEntity(it) }?.let {
+                            it.access_token = encryptToken(it.access_token)
+                            database.insertToken(it)
+                        }
                         response.body()?.let { TokenEntity(it) }?.let { database.insertUser(
                             UserEntity("", username)
                         ) }
@@ -111,6 +118,7 @@ object TagRepository {
                             database.updateTag(temp)
                         }
                     }
+                    403 -> errorMessage.emit("Вы должны авторизоваться")
                     else -> {
                         errorMessage.emit("${response.code()}: ${response.message()}")
                     }
@@ -132,6 +140,7 @@ object TagRepository {
                             true
                         }
                     }
+                    403 -> errorMessage.emit("Вы должны авторизоваться")
                     else -> errorMessage.emit("${response.code()}: ${response.message()}")
                 }
             } catch (e: Exception) { errorMessage.emit("Error: ${e.message.toString()}") }
@@ -149,13 +158,15 @@ object TagRepository {
         return flow {
             val a = App.instance.getSharedPreferences("basic", Context.MODE_PRIVATE)
             with(a){
-                emit(MapPosition(
+                emit(
+                    MapPosition(
                     getFloat("latitude", 54.0f).toDouble(),
                     getFloat("longitude", 38.0f).toDouble(),
                     getFloat("zoom", 17.0f).toDouble(),
                     getFloat("azimuth", 0.0f).toDouble(),
                     getFloat("tilt", 0.0f).toDouble()
-                ))
+                )
+                )
             }
         }
     }
@@ -201,19 +212,9 @@ object TagRepository {
         }
     }
 
-//    suspend fun checkIsAuthor(id: String) = flow {
-//        val username = database.getUser().first()
-//        val tag = database.getTag(id).first()
-//
-//        if (tag == null || username == null || tag.username == null) {
-//            emit(false)
-//        } else {
-//            emit(username.username == tag.username)
-//        }
-//    }.flowOn(Dispatchers.IO)
-
     suspend fun addSubscription(data: Subscription){
         database.addSubscription(data)
+        ChangeChecker.check(this, false)
     }
 
     suspend fun addSubscriptions(data: List<Subscription>){

@@ -6,6 +6,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.view.isVisible
 import com.example.lab_task.R
+import com.example.lab_task.model.other.PlacemarkType
 
 class ClusterView(context: Context) : LinearLayout(context) {
 

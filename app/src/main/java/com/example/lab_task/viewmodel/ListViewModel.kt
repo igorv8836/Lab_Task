@@ -7,12 +7,10 @@ import com.example.lab_task.adapters.SubscribedTag
 import com.example.lab_task.model.repository.TagRepository
 import com.example.lab_task.model.sqlite.Subscription
 import com.example.lab_task.model.sqlite.TagEntity
-import com.example.lab_task.view.fragments.FiltersData
+import com.example.lab_task.model.other.FiltersData
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class ListViewModel : ViewModel() {
     private var filters: FiltersData? = null
@@ -20,7 +18,6 @@ class ListViewModel : ViewModel() {
     val repository: TagRepository = TagRepository
     val tagsForDisplay: MutableLiveData<List<TagEntity>> = MutableLiveData()
     val helpingText = MutableLiveData<String>()
-    val photoPathForOpenTag = MutableLiveData<String>()
     val currUsername = MutableLiveData<String?>()
 
     init {

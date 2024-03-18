@@ -1,15 +1,14 @@
-package com.example.lab_task.model
+package com.example.lab_task.model.other
 
 import android.util.Log
-import androidx.work.ListenableWorker
 import com.example.lab_task.App
 import com.example.lab_task.model.repository.TagRepository
 import com.example.lab_task.model.sqlite.Subscription
-import com.example.lab_task.notifications.NotificationUtils
+import com.example.lab_task.notification.NotificationUtils
 import kotlinx.coroutines.flow.first
 
 object ChangeChecker {
-    suspend fun doWork(repository: TagRepository) {
+    suspend fun check(repository: TagRepository, withNotification: Boolean = true) {
         try {
             val newTags = repository.getTags().first()
             val subs = repository.getSubscriptions().first()
@@ -24,11 +23,13 @@ object ChangeChecker {
             newTags.forEach { newTag ->
                 if (newTag.userId in lastTagsMap && newTag.id !in lastTagsMap[newTag.userId] ?: emptyList()) {
                     lastTagsMap[newTag.userId]?.add(newTag.id)
-                    NotificationUtils.showNotification(
-                        App.instance,
-                        "Новая метка",
-                        "Пользователь ${newTag.username} опубликовал новую метку"
-                    )
+                    if (withNotification) {
+                        NotificationUtils.showNotification(
+                            App.instance,
+                            "Новая метка",
+                            "Пользователь ${newTag.username} опубликовал новую метку"
+                        )
+                    }
                     Log.i("notification", "New tag found for user ${lastTagsMap[newTag.userId]}: ${newTag.id}")
                 }
             }

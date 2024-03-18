@@ -27,14 +27,14 @@
         android:layout_marginTop="@dimen/margin_medium"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:text="Фильтры" />
+        android:text="@string/filters" />
 
     <CheckBox
         android:id="@+id/with_image_checkbox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="@dimen/text_size_medium"
-        android:text="Показывать только с фото"
+        android:text="@string/show_only_with_photo"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/sort_radio_group"/>
 
@@ -42,18 +42,17 @@
         android:id="@+id/spinner_text"
         app:layout_constraintStart_toStartOf="parent"
         android:textSize="@dimen/text_size_medium"
-        android:textColor="@color/black"
         app:layout_constraintTop_toBottomOf="@id/with_image_checkbox"
         app:layout_constraintBottom_toBottomOf="@id/type_search_spinner"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Поиск в:"/>
+        android:text="@string/search_in"/>
 
 
     <Spinner
         android:id="@+id/type_search_spinner"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="48dp"
         app:layout_constraintStart_toEndOf="@id/spinner_text"
         app:layout_constraintTop_toBottomOf="@id/with_image_checkbox"
         android:entries="@array/sorting_options"
@@ -69,28 +68,28 @@
 
         <RadioButton
             android:id="@+id/decreasing_likes"
-            android:text="По убыванию лайков"
+            android:text="@string/decrease_likes"
             android:textSize="@dimen/text_size_medium"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 
         <RadioButton
             android:id="@+id/increasing_likes"
-            android:text="По возрастанию лайков"
+            android:text="@string/increase_likes"
             android:textSize="@dimen/text_size_medium"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 
         <RadioButton
             android:id="@+id/alphabet_sorted"
-            android:text="По алфавиту авторов"
+            android:text="@string/increase_authors"
             android:textSize="@dimen/text_size_medium"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 
         <RadioButton
             android:id="@+id/reverse_alphaber_sorted"
-            android:text="По обратному алфавиту авторов"
+            android:text="@string/decrease_authors"
             android:textSize="@dimen/text_size_medium"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
@@ -104,7 +103,7 @@
         android:layout_marginStart="@dimen/margin_small"
         android:layout_marginEnd="@dimen/margin_medium"
         android:layout_marginTop="@dimen/margin_medium"
-        android:text="Сбросить"
+        android:text="@string/revert"
         app:layout_constraintTop_toBottomOf="@id/type_search_spinner"
         android:layout_width="0dp"
         android:layout_height="wrap_content"/>
@@ -114,20 +113,10 @@
         app:layout_constraintStart_toEndOf="@id/clear_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/type_search_spinner"
-        android:text="Применить"
+        android:text="@string/apply"
         android:layout_marginEnd="@dimen/margin_small"
         android:layout_marginStart="@dimen/margin_medium"
         android:layout_marginTop="@dimen/margin_medium"
         android:layout_width="0dp"
         android:layout_height="wrap_content"/>
-
-<!--    <Spinner-->
-<!--        android:id="@+id/sort_type"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        app:layout_constraintStart_toStartOf="parent"-->
-<!--        app:layout_constraintTop_toBottomOf="@id/with_image_checkbox"-->
-<!--        android:entries="@menu/sort_type"-->
-<!--        />-->
-
 </androidx.constraintlayout.widget.ConstraintLayout>

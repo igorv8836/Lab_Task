@@ -1,4 +1,4 @@
-package com.example.lab_task.view
+package com.example.lab_task.model.other
 
 enum class PlacemarkType {
     YELLOW,
