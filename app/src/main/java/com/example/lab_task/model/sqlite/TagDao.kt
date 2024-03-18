@@ -55,6 +55,9 @@ interface TagDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun addSubscription(data: Subscription)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun addSubscriptions(data: List<Subscription>)
+
     @Delete
     fun deleteSubscription(data: Subscription)
 

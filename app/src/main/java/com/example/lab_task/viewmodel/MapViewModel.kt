@@ -1,12 +1,23 @@
 package com.example.lab_task.viewmodel
 
+import android.app.Application
+import android.content.Context
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.work.ListenableWorker
+import androidx.work.WorkerParameters
+import com.example.lab_task.App
+import com.example.lab_task.model.ChangeChecker
 import com.example.lab_task.model.api.entities.TransmittedTag
 import com.example.lab_task.model.repository.TagRepository
+import com.example.lab_task.model.sqlite.Subscription
 import com.example.lab_task.model.sqlite.TagEntity
+import com.example.lab_task.notifications.NotificationUtils
+import com.example.lab_task.notifications.UpdateTagsWorker
 import com.example.lab_task.view.MapPosition
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.io.File
@@ -17,13 +28,11 @@ class MapViewModel : ViewModel() {
     val startingPos: MutableLiveData<MapPosition> = MutableLiveData()
     val helpingText: MutableLiveData<String> = MutableLiveData()
     val tags: MutableLiveData<List<TagEntity>> = MutableLiveData()
-    val openedTag: MutableLiveData<TagEntity> = MutableLiveData()
     val photoForNewTag: MutableLiveData<File?> = MutableLiveData()
-    val showDeleteButton: MutableLiveData<Boolean> = MutableLiveData()
-    val showSubscribeButton: MutableLiveData<Boolean> = MutableLiveData()
 
     init {
         initToken()
+        checkChanges()
     }
 
     fun getStartingPos(){
@@ -58,39 +67,8 @@ class MapViewModel : ViewModel() {
         viewModelScope.launch{
             repository.getTags().collect{
                 tags.value = it
-                checkOpenTag()
             }
         }
-    }
-
-    private fun showDeleteButton(tagId: String){
-        viewModelScope.launch{
-            val res = repository.checkIsAuthor(tagId).first()
-            showDeleteButton.postValue(res)
-        }
-    }
-
-    private fun showSubscribeButton(tagId: String){
-        viewModelScope.launch{
-            val res = repository.checkIsAuthor(tagId).first()
-            showSubscribeButton.postValue(!res)
-        }
-    }
-
-    fun openTagInfoFrame(tagId: String){
-        findTagById(tagId)?.let {
-            showDeleteButton(it.id)
-            showSubscribeButton(it.id)
-            openedTag.value = it
-//            getPhotoPath(it.imagePath ?: "")
-        }
-    }
-
-    private fun checkOpenTag(){
-        val openTag = openedTag.value
-        val foundTag = tags.value?.firstOrNull { it.id == openTag?.id }
-        if (openTag != foundTag)
-            foundTag.let { openedTag.value = it }
     }
 
     fun addTag(latitude: Double, longitude: Double, description: String){
@@ -99,26 +77,13 @@ class MapViewModel : ViewModel() {
         }
     }
 
-    private fun findTagById(tagId: String) = tags.value?.firstOrNull { it.id == tagId }
-
-    fun changeLike(id: String){
-        val foundTag = findTagById(id) ?: return
-        viewModelScope.launch {
-            if (!foundTag.isLiked) {
-                repository.addLike(foundTag.id)
-            }else {
-                repository.deleteLike(foundTag.id)
-            }
-        }
-    }
-
     fun setSelectedImage(file: File?){
         photoForNewTag.value = file
     }
 
-    fun deleteTag(tagId: String){
-        viewModelScope.launch {
-            repository.deleteTag(tagId)
+    private fun checkChanges(){
+        viewModelScope.launch(Dispatchers.IO) {
+            ChangeChecker.doWork(repository)
         }
     }
 }

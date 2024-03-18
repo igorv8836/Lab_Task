@@ -1,23 +1,15 @@
-package com.example.lab_task.notifications
+package com.example.lab_task.model
 
-import android.content.Context
 import android.util.Log
-import androidx.work.Constraints
-import androidx.work.CoroutineWorker
-import androidx.work.NetworkType
-import androidx.work.PeriodicWorkRequestBuilder
-import androidx.work.WorkManager
-import androidx.work.WorkerParameters
+import androidx.work.ListenableWorker
 import com.example.lab_task.App
 import com.example.lab_task.model.repository.TagRepository
 import com.example.lab_task.model.sqlite.Subscription
+import com.example.lab_task.notifications.NotificationUtils
 import kotlinx.coroutines.flow.first
-import java.util.concurrent.TimeUnit
 
-class UpdateTagsWorker(context: Context, params: WorkerParameters) : CoroutineWorker(context, params) {
-    private val repository = TagRepository
-
-    override suspend fun doWork(): Result {
+object ChangeChecker {
+    suspend fun doWork(repository: TagRepository) {
         try {
             val newTags = repository.getTags().first()
             val subs = repository.getSubscriptions().first()
@@ -42,27 +34,6 @@ class UpdateTagsWorker(context: Context, params: WorkerParameters) : CoroutineWo
             }
             val list = lastTagsMap.map { (userId, tags) -> Subscription(userId, tags.joinToString(",")) }
             repository.addSubscriptions(ArrayList(list))
-        } catch (e: Exception) {
-            Log.i("notification", e.message.toString())
-            return Result.failure()
-        }
-        return Result.success()
+        } catch (e: Exception) { Log.i("notification", e.message.toString()) }
     }
-}
-
-fun setupWorkManager(context: Context) {
-    val TAG = "check_new_tag"
-    val constraints = Constraints.Builder()
-        .setRequiredNetworkType(NetworkType.CONNECTED)
-        .build()
-
-    val workRequest = PeriodicWorkRequestBuilder<UpdateTagsWorker>(
-        repeatInterval = 24,
-        repeatIntervalTimeUnit = TimeUnit.SECONDS
-    ).setConstraints(constraints)
-        .addTag(TAG)
-        .build()
-
-    WorkManager.getInstance(context).cancelAllWorkByTag(TAG)
-    WorkManager.getInstance(context).enqueue(workRequest)
 }

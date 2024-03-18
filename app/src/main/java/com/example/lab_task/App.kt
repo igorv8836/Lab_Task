@@ -21,7 +21,4 @@ class App: Application() {
         NotificationUtils.createNotificationChannel(applicationContext)
         setupWorkManager(applicationContext)
     }
-
-    fun getInstance() = instance
-    fun getDatabase() = dataBase
 }

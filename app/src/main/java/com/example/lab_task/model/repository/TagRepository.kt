@@ -31,7 +31,6 @@ object TagRepository {
                 val response = api.getTags()
                 when(response.code()){
                     200 -> {
-                        database.clearTags()
                         database.insertTags(response.body()!!.map {
                             val temp = it
                             if (temp.image != null)
@@ -175,11 +174,15 @@ object TagRepository {
 
     suspend fun deleteTag(id: String) {
         withContext(Dispatchers.IO){
-            val response = api.deleteTag(id)
+            try {
+                val response = api.deleteTag(id)
 
-            when (response.code()){
-                204 ->database.deleteTag(id)
-                else -> errorMessage.emit("Вы не автор метки или вы не авторизованы")
+                when (response.code()) {
+                    204 -> database.deleteTag(id)
+                    else -> errorMessage.emit("Вы не автор метки или вы не авторизованы")
+                }
+            } catch (e: Exception){
+                errorMessage.emit("Критическая ошибка: ${e.message}")
             }
         }
     }
@@ -198,19 +201,23 @@ object TagRepository {
         }
     }
 
-    suspend fun checkIsAuthor(id: String) = flow {
-        val username = database.getUser().first()
-        val tag = database.getTag(id).first()
-
-        if (tag == null || username == null || tag.username == null) {
-            emit(false)
-        } else {
-            emit(username.username == tag.username)
-        }
-    }.flowOn(Dispatchers.IO)
+//    suspend fun checkIsAuthor(id: String) = flow {
+//        val username = database.getUser().first()
+//        val tag = database.getTag(id).first()
+//
+//        if (tag == null || username == null || tag.username == null) {
+//            emit(false)
+//        } else {
+//            emit(username.username == tag.username)
+//        }
+//    }.flowOn(Dispatchers.IO)
 
     suspend fun addSubscription(data: Subscription){
         database.addSubscription(data)
+    }
+
+    suspend fun addSubscriptions(data: List<Subscription>){
+        database.addSubscriptions(data)
     }
 
     suspend fun deleteSubscription(data: Subscription){

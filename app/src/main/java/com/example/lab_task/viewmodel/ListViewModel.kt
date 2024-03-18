@@ -9,6 +9,7 @@ import com.example.lab_task.model.sqlite.Subscription
 import com.example.lab_task.model.sqlite.TagEntity
 import com.example.lab_task.view.fragments.FiltersData
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -25,6 +26,7 @@ class ListViewModel : ViewModel() {
     init {
         loadTags()
         getCurrUserId()
+        checkSubscriptions()
         getErrorMessage()
     }
 
@@ -39,6 +41,14 @@ class ListViewModel : ViewModel() {
                 }
                 loadedTags = newList
                 updateFilteredList()
+            }
+        }
+    }
+
+    private fun checkSubscriptions(){
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.getSubscriptions().collect{
+                loadTags()
             }
         }
     }

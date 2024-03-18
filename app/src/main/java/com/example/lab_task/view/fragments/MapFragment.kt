@@ -12,6 +12,7 @@ import android.os.Build
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -34,6 +35,7 @@ import com.yandex.mapkit.map.PlacemarkMapObject
 import com.example.lab_task.view.ClusterView
 import com.example.lab_task.view.MapPosition
 import com.example.lab_task.view.PlacemarkType
+import com.yandex.mapkit.MapKitFactory
 import com.yandex.mapkit.map.ClusterizedPlacemarkCollection
 import com.yandex.runtime.image.ImageProvider
 import com.yandex.runtime.ui_view.ViewProvider
@@ -64,7 +66,6 @@ class MapFragment : Fragment() {
         with(binding) {
             mapview.map.addInputListener(inputListener)
 
-            tagInfoLayout.closeButton.setOnClickListener { binding.tagInfoFrame.visibility = View.GONE }
             addTagButtonLayout.closeButton.setOnClickListener {
                 userPlacemark?.isVisible = false
                 binding.newTagButtonFrame.visibility = View.GONE
@@ -86,13 +87,14 @@ class MapFragment : Fragment() {
             tags.observe(viewLifecycleOwner) {
                 clusterizedCollection.clear()
                 for (i in it) {
-                    val a = clusterizedCollection.addPlacemark().apply {
+                    clusterizedCollection.addPlacemark().apply {
                         geometry = Point(i.latitude, i.longitude)
                         setText(i.description)
                         userData = i.id
                         setIcon(ImageProvider.fromResource(requireContext(), R.drawable.placemark))
                         addTapListener(placemarkTapListener)
                     }
+                    1
                 }
                 clusterizedCollection.clusterPlacemarks(60.0, 15)
             }
@@ -110,12 +112,6 @@ class MapFragment : Fragment() {
 
             helpingText.observe(viewLifecycleOwner) {
                 Snackbar.make(binding.root, it, Snackbar.LENGTH_SHORT).show()
-            }
-            showDeleteButton.observe(viewLifecycleOwner){
-                binding.tagInfoLayout.deleteButton.visibility = if (it) View.VISIBLE else View.GONE
-            }
-            showSubscribeButton.observe(viewLifecycleOwner){
-                binding.tagInfoLayout.subscribeButton.visibility = if (it) View.VISIBLE else View.GONE
             }
         }
     }
@@ -149,7 +145,7 @@ class MapFragment : Fragment() {
 
     private val inputListener = object : InputListener {
         override fun onMapTap(map: Map, point: Point) {
-            if (userPlacemark == null) {
+            if (userPlacemark == null || userPlacemark?.isValid == false) {
                 userPlacemark = map.mapObjects.addPlacemark().apply {
                     geometry = point
                     setIcon(
@@ -159,12 +155,13 @@ class MapFragment : Fragment() {
                         )
                     )
                 }
+                Log.i("ll1", userPlacemark?.isValid.toString())
             } else {
-                userPlacemark!!.geometry = point
+                Log.i("ll", userPlacemark?.isValid.toString())
+                userPlacemark?.geometry = point
             }
             userPlacemark?.isVisible = true
 
-            binding.tagInfoFrame.visibility = View.GONE
             binding.newTagButtonFrame.visibility = View.VISIBLE
         }
         override fun onMapLongTap(map: Map, point: Point) {}
@@ -260,8 +257,8 @@ class MapFragment : Fragment() {
     }
 
     override fun onStop() {
-        super.onStop()
         binding.mapview.onStop()
+        super.onStop()
         viewModel.setStartingPos(
             binding.mapview.map.cameraPosition.run {
                 MapPosition(

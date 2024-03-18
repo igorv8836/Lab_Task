@@ -12,26 +12,12 @@
         android:layout_height="match_parent"/>
 
     <FrameLayout
-        android:id="@+id/tag_info_frame"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:visibility="gone"
-        android:layout_marginBottom="@dimen/margin_large"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <include
-            android:id="@+id/tag_info_layout"
-            layout="@layout/tag_managing"/>
-    </FrameLayout>
-
-    <FrameLayout
         android:id="@+id/new_tag_button_frame"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         android:visibility="gone"
+        tools:visibility="visible"
         android:layout_marginBottom="@dimen/margin_medium"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
