@@ -35,7 +35,7 @@
 ## Требования к самостоятельной сборке проекта
 * Android Studio
 * SDK > 26 (на Android 9, Android 14 проверен)
-* Токен Yandex MapKit (Необходимо в файле проекта local.properties поменять токен на рабочий без использования кавычек) https://yandex.ru/maps-api/products/mapkithttps://yandex.ru/maps-api/products/mapkit
+* Токен Yandex MapKit (Необходимо в файле проекта local.properties добавить токен на рабочий без использования кавычек как в проекте, возможно придется указать правильный путь к SDK) https://yandex.ru/maps-api/products/mapkithttps://yandex.ru/maps-api/products/mapkit
 
 ## Требования для работоспособности приложения
 * SDK > 26
