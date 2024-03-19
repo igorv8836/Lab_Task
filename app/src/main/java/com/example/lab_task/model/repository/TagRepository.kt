@@ -26,7 +26,7 @@ object TagRepository {
     private val database = App.dataBase.getTagDao()
     val errorMessage = MutableSharedFlow<String?>()
 
-    suspend fun getTag(tagId: String) = database.getTag(tagId)
+    fun getTag(tagId: String) = database.getTag(tagId)
 
     suspend fun getTags(): Flow<List<TagEntity>> {
         try {
@@ -53,7 +53,7 @@ object TagRepository {
             emit(user?.username)
             }.flowOn(Dispatchers.IO)
 
-    suspend fun getCurrUser() = database.getUser()
+    fun getCurrUser() = database.getUser()
 
     suspend fun setTokenFromLocal(){
         try {
@@ -217,15 +217,15 @@ object TagRepository {
         ChangeChecker.check(this, false)
     }
 
-    suspend fun addSubscriptions(data: List<Subscription>){
+    fun addSubscriptions(data: List<Subscription>){
         database.addSubscriptions(data)
     }
 
-    suspend fun deleteSubscription(data: Subscription){
+    fun deleteSubscription(data: Subscription){
         database.deleteSubscription(data)
     }
 
-    suspend fun getSubscription(user_id: String) = database.getSubscription(user_id)
+    fun getSubscription(user_id: String) = database.getSubscription(user_id)
 
-    suspend fun getSubscriptions() = database.getSubscriptions()
+    fun getSubscriptions() = database.getSubscriptions()
 }

@@ -11,5 +11,4 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class MainActivityViewModel: ViewModel(){
-    val repository = TagRepository
 }

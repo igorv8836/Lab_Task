@@ -22,16 +22,14 @@ object NotificationUtils {
     private const val NOTIFICATION_ID = 1
 
     fun createNotificationChannel(context: Context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-            val channel = NotificationChannel(
-                CHANNEL_ID,
-                CHANNEL_NAME,
-                NotificationManager.IMPORTANCE_DEFAULT
-            )
-            notificationManager.createNotificationChannel(channel)
-        }
+        val channel = NotificationChannel(
+            CHANNEL_ID,
+            CHANNEL_NAME,
+            NotificationManager.IMPORTANCE_DEFAULT
+        )
+        notificationManager.createNotificationChannel(channel)
     }
 
     fun showNotification(context: Context, title: String, message: String, point: Point? = null) {

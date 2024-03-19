@@ -45,7 +45,7 @@ class MapViewModel : ViewModel() {
         }
     }
 
-    fun getErrorMessage(){
+    private fun getErrorMessage(){
         viewModelScope.launch {
             repository.errorMessage.collect{
                 if (it != null)

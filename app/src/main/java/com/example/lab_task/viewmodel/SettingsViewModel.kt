@@ -8,7 +8,7 @@ import kotlinx.coroutines.launch
 
 class SettingsViewModel : ViewModel() {
     val snackbarText = MutableLiveData<String>()
-    val isAuthed = MutableLiveData<Boolean>()
+    private val isAuthed = MutableLiveData<Boolean>()
     val username = MutableLiveData<String>()
     private val repository = TagRepository
 
@@ -33,7 +33,7 @@ class SettingsViewModel : ViewModel() {
         }
     }
 
-    fun getErrorMessage(){
+    private fun getErrorMessage(){
         viewModelScope.launch {
             repository.errorMessage.collect{
                 snackbarText.postValue(it)

@@ -26,7 +26,7 @@ class ClusterView(context: Context) : LinearLayout(context) {
     }
 
     fun setData(placemarkTypes: List<PlacemarkType>) {
-        PlacemarkType.values().forEach {
+        PlacemarkType.entries.forEach {
             updateViews(placemarkTypes, it)
         }
     }

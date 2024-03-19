@@ -21,7 +21,9 @@ object ChangeChecker {
                 }
             )
             newTags.forEach { newTag ->
-                if (newTag.userId in lastTagsMap && newTag.id !in lastTagsMap[newTag.userId] ?: emptyList()) {
+                if (newTag.userId in lastTagsMap && newTag.id !in (lastTagsMap[newTag.userId]
+                        ?: emptyList())
+                ) {
                     lastTagsMap[newTag.userId]?.add(newTag.id)
                     if (withNotification) {
                         NotificationUtils.showNotification(

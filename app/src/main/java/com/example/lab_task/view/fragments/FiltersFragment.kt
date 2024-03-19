@@ -11,7 +11,7 @@ import com.example.lab_task.model.other.FiltersDataRecievedListener
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
 class FiltersFragment(val listener: FiltersDataRecievedListener) : BottomSheetDialogFragment() {
-    lateinit var binding: FragmentFiltersBinding
+    private lateinit var binding: FragmentFiltersBinding
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {

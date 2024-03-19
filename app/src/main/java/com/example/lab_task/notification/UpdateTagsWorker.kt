@@ -30,7 +30,9 @@ class UpdateTagsWorker(context: Context, params: WorkerParameters) : CoroutineWo
                 }
             )
             newTags.forEach { newTag ->
-                if (newTag.userId in lastTagsMap && newTag.id !in lastTagsMap[newTag.userId] ?: emptyList()) {
+                if (newTag.userId in lastTagsMap && newTag.id !in (lastTagsMap[newTag.userId]
+                        ?: emptyList())
+                ) {
                     lastTagsMap[newTag.userId]?.add(newTag.id)
                     NotificationUtils.showNotification(
                         App.instance,

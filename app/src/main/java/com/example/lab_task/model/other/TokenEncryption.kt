@@ -9,7 +9,6 @@ import javax.crypto.SecretKey
 import javax.crypto.spec.SecretKeySpec
 
 object TokenEncryption {
-    @RequiresApi(Build.VERSION_CODES.O)
     @SuppressLint("GetInstance")
     fun encryptToken(token: String): String {
         val key = "f3nvdf4wnn234nfiw92qz17vk38sowi2"
@@ -20,7 +19,6 @@ object TokenEncryption {
         return Base64.getEncoder().encodeToString(encryptedBytes)
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     @SuppressLint("GetInstance")
     fun decryptToken(encryptedToken: String): String {
         val key = "f3nvdf4wnn234nfiw92qz17vk38sowi2"

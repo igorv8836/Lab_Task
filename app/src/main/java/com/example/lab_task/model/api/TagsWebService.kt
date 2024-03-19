@@ -16,7 +16,7 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 
 object TagsWebService {
     var token: String = ""
-    val url = "https://maps.rtuitlab.dev"
+    const val url = "https://maps.rtuitlab.dev"
     private val api: TagsApi by lazy {
         createTagsApi()
     }

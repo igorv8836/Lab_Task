@@ -66,9 +66,4 @@ interface TagsApi {
         @Field("username") username: String,
         @Field("password") password: String
     ): Response<UserAuth>
-
-    @GET("/storage/{path}")
-    suspend fun getPhoto(
-        @Path("path") path: String
-    ): Response<String>
 }

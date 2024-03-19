@@ -40,6 +40,19 @@ open class TagEntity(
         if (other !is TagEntity) return false
         return id == other.id && likes == other.likes && isLiked == other.isLiked
     }
+
+    override fun hashCode(): Int {
+        var result = id.hashCode()
+        result = 31 * result + latitude.hashCode()
+        result = 31 * result + longitude.hashCode()
+        result = 31 * result + description.hashCode()
+        result = 31 * result + (imagePath?.hashCode() ?: 0)
+        result = 31 * result + likes
+        result = 31 * result + isLiked.hashCode()
+        result = 31 * result + (userId?.hashCode() ?: 0)
+        result = 31 * result + (username?.hashCode() ?: 0)
+        return result
+    }
 }
 
 
