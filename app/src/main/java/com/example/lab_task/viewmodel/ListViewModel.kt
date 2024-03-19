@@ -4,6 +4,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.lab_task.adapters.SubscribedTag
+import com.example.lab_task.model.other.ChangeChecker
 import com.example.lab_task.model.repository.TagRepository
 import com.example.lab_task.model.sqlite.Subscription
 import com.example.lab_task.model.sqlite.TagEntity
@@ -25,6 +26,7 @@ class ListViewModel : ViewModel() {
         getCurrUserId()
         checkSubscriptions()
         getErrorMessage()
+        checkChanges()
     }
 
     private fun loadTags() {
@@ -128,6 +130,12 @@ class ListViewModel : ViewModel() {
     fun deleteTag(tagId: String) {
         viewModelScope.launch {
             repository.deleteTag(tagId)
+        }
+    }
+
+    private fun checkChanges(){
+        viewModelScope.launch(Dispatchers.IO) {
+            ChangeChecker.check(repository)
         }
     }
 

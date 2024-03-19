@@ -28,24 +28,27 @@
 
         <TextView
             android:id="@+id/description"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin_small"
             android:text="@string/description"
             android:textSize="@dimen/text_size_medium"
             app:layout_constraintStart_toEndOf="@+id/image"
-            app:layout_constraintTop_toBottomOf="@+id/coordinates" />
+            app:layout_constraintTop_toBottomOf="@+id/coordinates"
+            app:layout_constraintEnd_toStartOf="@id/guideline"
+            />
 
         <TextView
             android:id="@+id/coordinates"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin_small"
             android:layout_marginTop="@dimen/margin_small"
             android:text="@string/coordinates"
             android:textSize="@dimen/text_size_medium"
             app:layout_constraintStart_toEndOf="@+id/image"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/guideline"/>
 
 
         <com.google.android.material.imageview.ShapeableImageView
@@ -55,18 +58,19 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:shapeAppearanceOverlay="@style/ImageView.Round"
-            tools:srcCompat="@tools:sample/avatars" />
+            android:src="@drawable/no_image" />
 
         <TextView
             android:id="@+id/author"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin_small"
             android:layout_marginTop="@dimen/margin_large"
             android:text="@string/author"
             android:textSize="@dimen/text_size_medium"
             app:layout_constraintStart_toEndOf="@+id/image"
-            app:layout_constraintTop_toBottomOf="@+id/description" />
+            app:layout_constraintTop_toBottomOf="@+id/description"
+            app:layout_constraintEnd_toStartOf="@id/guideline"/>
 
         <ImageView
             android:id="@+id/like"

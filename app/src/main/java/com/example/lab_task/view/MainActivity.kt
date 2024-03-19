@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.view.MenuItem
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.example.lab_task.BuildConfig
 import com.example.lab_task.R
@@ -16,6 +17,7 @@ import com.example.lab_task.databinding.FragmentMapBinding
 import com.example.lab_task.view.fragments.ListFragment
 import com.example.lab_task.view.fragments.MapFragment
 import com.example.lab_task.view.fragments.SettingsFragment
+import com.example.lab_task.viewmodel.MainActivityViewModel
 import com.google.android.material.navigation.NavigationBarView
 import com.yandex.mapkit.MapKitFactory
 
@@ -24,10 +26,12 @@ class MainActivity : AppCompatActivity() {
     lateinit var mapFragment: MapFragment
     lateinit var settingsFragment: SettingsFragment
     lateinit var listFragment: ListFragment
+    private lateinit var viewModel: MainActivityViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         MapKitFactory.setApiKey(BuildConfig.MAPKIT_API_KEY)
         MapKitFactory.initialize(this)
+        viewModel = ViewModelProvider(this)[MainActivityViewModel::class.java]
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 

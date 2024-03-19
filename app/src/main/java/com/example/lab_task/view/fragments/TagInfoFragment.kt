@@ -44,6 +44,8 @@ class TagInfoFragment : BottomSheetDialogFragment() {
                 checkSubscription()
                 showDeleteButton()
                 it?.imagePath?.let {it1 ->
+                    if (it1 == null)
+                        binding.image.setImageResource(R.drawable.no_image)
                     Picasso.get().load(it1).resize(
                         resources.getDimensionPixelSize(R.dimen.image_size),
                         resources.getDimensionPixelSize(R.dimen.image_size)

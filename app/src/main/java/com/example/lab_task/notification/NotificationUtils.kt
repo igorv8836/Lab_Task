@@ -13,6 +13,8 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.example.lab_task.R
 import com.example.lab_task.view.MainActivity
+import com.example.lab_task.view.fragments.MapFragment
+import com.yandex.mapkit.geometry.Point
 
 object NotificationUtils {
     private const val CHANNEL_ID = "LabTask_Tag_Notification"
@@ -32,8 +34,12 @@ object NotificationUtils {
         }
     }
 
-    fun showNotification(context: Context, title: String, message: String) {
-        val intent = Intent(context, MainActivity::class.java)
+    fun showNotification(context: Context, title: String, message: String, point: Point? = null) {
+        val intent = Intent(context, MapFragment::class.java)
+        if (point != null) {
+            intent.putExtra("latitude", point.latitude)
+            intent.putExtra("longitude", point.longitude)
+        }
         val pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
 
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
@@ -41,7 +47,7 @@ object NotificationUtils {
             .setContentText(message)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .setCategory(NotificationCompat.CATEGORY_MESSAGE)
+            .setCategory(NotificationCompat.CATEGORY_EVENT)
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
             .build()

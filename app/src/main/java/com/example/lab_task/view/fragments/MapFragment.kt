@@ -80,11 +80,9 @@ class MapFragment : Fragment() {
         clusterizedCollection =
             binding.mapview.map.mapObjects.addClusterizedPlacemarkCollection(clusterListener)
 
-
         with(viewModel) {
-            getErrorMessage()
-            getTags()
             getStartingPos()
+            getTags()
             tags.observe(viewLifecycleOwner) {
                 clusterizedCollection.clear()
                 for (i in it) {

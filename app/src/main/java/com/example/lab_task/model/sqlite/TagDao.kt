@@ -23,7 +23,7 @@ interface TagDao {
     @Update(onConflict = OnConflictStrategy.REPLACE)
     fun updateTag(tag: TagEntity)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Update(onConflict = OnConflictStrategy.REPLACE)
     fun insertTags(tags: List<TagEntity>)
 
     @Query("DELETE FROM tags WHERE id = :id")

@@ -44,10 +44,13 @@ class TagAdapter(var data: ArrayList<TagEntity>, private val listener: OnAdapter
         else
             holder.likeButton.setImageResource(R.drawable.heart)
 
-        Picasso.get().load(data[position].imagePath).resize(
-            holder.itemView.resources.getDimensionPixelSize(R.dimen.image_size),
-            holder.itemView.resources.getDimensionPixelSize(R.dimen.image_size)
-        ).into(holder.photo)
+        if (data[position].imagePath == null)
+            holder.photo.setImageResource(R.drawable.no_image)
+        else
+            Picasso.get().load(data[position].imagePath).resize(
+                holder.itemView.resources.getDimensionPixelSize(R.dimen.image_size),
+                holder.itemView.resources.getDimensionPixelSize(R.dimen.image_size)
+            ).into(holder.photo)
 
         holder.likeButton.setOnClickListener {
             listener.onLikeClick(data[position].id, data[position].isLiked)

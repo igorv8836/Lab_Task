@@ -22,6 +22,7 @@ class MapViewModel : ViewModel() {
 
     init {
         initToken()
+        getErrorMessage()
         checkChanges()
     }
 
