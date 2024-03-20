@@ -47,6 +47,6 @@
 * Room
 * Flow and Coroutines
 * Retrofit2 and Moshi
-* WorkManager
+* WorkManager для проверки новых меток от подписанных пользователей на фоне с периодом 15 мин, при появлении новой метки отправляет уведомление
 * Yandex mapkit
 * Токен хранится в базе данных sqlite в зашифрованном виде
